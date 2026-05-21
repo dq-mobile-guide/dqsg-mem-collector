@@ -1,0 +1,797 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DQSG 破限亂鬥 記憶體收集關卡</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        /* 隱藏滾動條但保持滾動功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen pb-16">
+
+    <!-- 頂部導覽列 (標題與社群推薦大橫幅) -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 shadow-md">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col gap-3 sm:gap-4">
+
+            <!-- 標題與進度區塊 -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                
+                <!-- 左側：標題區 -->
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="bg-indigo-600 p-2.5 sm:p-3 rounded-xl text-white shadow-lg shadow-indigo-600/30 flex-shrink-0">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                            <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-wider text-indigo-400">DQSG 破限亂鬥</h1>
+                        <p class="text-sm md:text-lg text-slate-300 font-bold mt-0.5">一、二、三章（困難）記憶體收集助手</p>
+                    </div>
+                </div>
+
+                <!-- 右側：排版偵測徽章與收集進度條 -->
+                <div class="w-full lg:w-80 flex flex-col items-start lg:items-end gap-2">
+                    <div id="device-badge" class="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-slate-900 border border-slate-700 text-slate-400 flex items-center gap-1.5 shadow-inner">
+                        <!-- JS 動態插入圖示 -->
+                    </div>
+                    <div class="w-full">
+                        <div class="flex justify-between text-xs sm:text-sm md:text-base mb-1 text-slate-300 font-bold">
+                            <span id="progress-title">整體收集進度</span>
+                            <span id="progress-text" class="text-indigo-400">0/0 (0%)</span>
+                        </div>
+                        <div class="w-full bg-slate-700 h-2.5 sm:h-3.5 rounded-full overflow-hidden shadow-inner">
+                            <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 下方：社群推薦全寬大點擊區 -->
+            <a href="https://line.me/ti/g2/1tDArgfv2kXRSz6yFd9GkXvCy4fAMD7Jm3BLbg?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" 
+               target="_blank" 
+               class="block w-full bg-slate-900/80 hover:bg-slate-900 border border-slate-700/60 rounded-xl p-3 sm:p-4 text-center transition-all shadow-inner group cursor-pointer">
+                <p class="text-[11px] sm:text-xs text-slate-400 font-bold mb-1 sm:mb-1.5 tracking-wider">社群協力共鬥推薦</p>
+                <div class="flex items-center justify-center gap-2 text-emerald-400 group-hover:text-emerald-300 font-black text-sm sm:text-base md:text-lg">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    [DQSG] 勇者鬥惡龍 破限亂鬥 (國際/日服協力共鬥)
+                </div>
+            </a>
+            
+        </div>
+    </header>
+
+    <!-- 主容器 -->
+    <main class="max-w-[1600px] mx-auto px-4 sm:px-6 mt-6 sm:mt-8">
+
+        <!-- 全域章節篩選器 -->
+        <div class="flex flex-col md:flex-row items-center justify-between bg-slate-800 p-3 rounded-2xl border border-slate-700 mb-6 shadow-lg gap-4 overflow-x-auto">
+            <div class="flex items-center gap-3 pl-2 flex-shrink-0">
+                <div class="bg-slate-900 p-2 rounded-lg text-indigo-400 border border-slate-750">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <span class="text-sm md:text-base font-bold text-slate-300">選擇章節：</span>
+            </div>
+            <div class="flex flex-nowrap gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
+                <button id="btn-chap-all" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">全部</button>
+                <button id="btn-chap-1" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第一章</button>
+                <button id="btn-chap-2" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第二章</button>
+                <button id="btn-chap-3" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第三章</button>
+            </div>
+        </div>
+
+        <!-- 手機直屏版專屬頁籤 -->
+        <div id="mobile-tabs-bar" class="flex bg-slate-800 p-2 rounded-2xl border border-slate-700 mb-8 shadow-lg lg:hidden">
+            <button id="tab-button-memories" class="flex-1 flex items-center justify-center gap-3 py-4 rounded-xl text-base md:text-xl font-extrabold transition-all duration-200">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                記憶體清單
+            </button>
+            <button id="tab-button-stages" class="flex-1 flex items-center justify-center gap-3 py-4 rounded-xl text-base md:text-xl font-extrabold transition-all duration-200">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.063 1.06l-.02.042m-1.083-1.082L9 9m2.25 2.25l2.25 2.25M9 9l-1.5-1.5M13.5 13.5l1.5 1.5M9 9L6.75 11.25m6.75-2.25l2.25 2.25M6.75 11.25L3 15v3.75H6.75l3.75-3.75m-3.75 0L9 13.5" />
+                </svg>
+                推薦刷關
+            </button>
+        </div>
+
+        <!-- 核心自適應佈局容器 -->
+        <div id="dynamic-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- 推薦關卡區域 (左側) -->
+            <div id="section-stages" class="lg:col-span-1 flex flex-col gap-6">
+                <!-- 推薦刷關卡片 -->
+                <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl lg:sticky lg:top-[170px]">
+                    <div class="flex items-center gap-3 mb-4 border-b border-slate-700 pb-4">
+                        <svg class="text-rose-500 w-7 h-7 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.063 1.06l-.02.042m-1.083-1.082L9 9m2.25 2.25l2.25 2.25M9 9l-1.5-1.5M13.5 13.5l1.5 1.5M9 9L6.75 11.25m6.75-2.25l2.25 2.25M6.75 11.25L3 15v3.75H6.75l3.75-3.75m-3.75 0L9 13.5" />
+                        </svg>
+                        <h2 class="text-xl md:text-2xl font-black">推薦刷關排序</h2>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-5 leading-relaxed">
+                        系統會依「您尚未獲得的記憶體數量」即時排序。若關卡內的稀奇/超稀奇記憶體<strong>已被您全部取得，標籤將會自動隱藏</strong>！
+                    </p>
+                    
+                    <div id="stage-recommendations" class="space-y-4 max-h-[60vh] lg:max-h-[50vh] overflow-y-auto pr-1 no-scrollbar">
+                        <!-- 動態生成關卡推薦卡片 -->
+                    </div>
+                </div>
+
+                <!-- LINE 社群 QR Code 推廣 -->
+                <div id="sidebar-line-community" class="bg-gradient-to-b from-slate-800 to-indigo-950/40 rounded-2xl p-6 border border-indigo-500/30 shadow-xl text-center flex flex-col items-center lg:sticky lg:top-[680px]">
+                    <h3 class="text-base md:text-lg font-black text-slate-100 mb-2">手機掃碼加入</h3>
+                    <p class="text-xs text-slate-400 mb-4 max-w-xs leading-relaxed">用另一台裝置掃描下方 QR Code，或點擊上方置頂大按鈕直接加入！</p>
+                    <div class="bg-white p-3 rounded-2xl shadow-xl max-w-[150px]">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://line.me/ti/g2/1tDArgfv2kXRSz6yFd9GkXvCy4fAMD7Jm3BLbg?utm_source=invitation%26utm_medium=link_copy%26utm_campaign=default" 
+                             alt="LINE 社群 QR Code" 
+                             class="w-full h-auto rounded-lg">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 記憶體清單區域 (右側兩欄) -->
+            <div id="section-memories" class="lg:col-span-2 space-y-6">
+                <!-- 獲得狀態過濾區 -->
+                <div class="bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-lg">
+                    <div class="flex gap-3 w-full sm:w-auto">
+                        <button id="btn-filter-all" class="flex-1 sm:flex-none px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-indigo-600 text-white transition shadow-md shadow-indigo-600/20">全部顯示</button>
+                        <button id="btn-filter-todo" class="flex-1 sm:flex-none px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition">僅顯示未獲得</button>
+                    </div>
+                    <div class="text-xs md:text-sm text-slate-400 font-medium">
+                        點擊卡片可切換 <span class="text-emerald-400 font-bold">已獲得</span> 狀態
+                    </div>
+                </div>
+
+                <!-- 記憶體卡片容器 -->
+                <div id="memories-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <!-- 動態生成記憶體卡片 -->
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="mt-20 text-center text-sm text-slate-500 border-t border-slate-800 pt-10 max-w-6xl mx-auto px-6 space-y-3">
+        <p class="font-medium text-slate-400">
+            此工具由 
+            <a href="https://line.me/ti/g2/1tDArgfv2kXRSz6yFd9GkXvCy4fAMD7Jm3BLbg?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" 
+               target="_blank" 
+               class="text-indigo-400 hover:text-indigo-300 underline font-bold inline-flex items-center gap-1">
+                「[DQSG] 勇者鬥惡龍 破限亂鬥 (國際/日服協力共鬥)」
+            </a> 
+            社群製作提供
+        </p>
+        <p class="text-xs text-slate-500">資料來源：根據玩家提供之遊戲內擷圖與社群大老實測整理</p>
+    </footer>
+
+    <script>
+        // 內嵌一、二、三章精緻怪物 SVG 圖像
+        const monsterIcons = {
+            // ================== 第一章 ==================
+            "萊姆史萊姆": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 15 C30 15 20 40 20 65 C20 85 35 90 50 90 C65 90 80 85 80 65 C80 40 70 15 50 15 Z" fill="#4ade80" stroke="#166534" stroke-width="3"/><path d="M50 15 C45 25 55 25 50 15" stroke="#166534" stroke-width="3" fill="none"/><circle cx="40" cy="55" r="5" fill="#ffffff" /><circle cx="40" cy="55" r="2.5" fill="#000000" /><circle cx="60" cy="55" r="5" fill="#ffffff" /><circle cx="60" cy="55" r="2.5" fill="#000000" /><path d="M44 68 Q50 74 56 68" stroke="#166534" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+            "史萊姆": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 18 C32 18 22 42 22 66 C22 84 34 88 50 88 C66 88 78 84 78 66 C78 42 68 18 50 18 Z" fill="#3b82f6" stroke="#1e3a8a" stroke-width="3"/><circle cx="40" cy="56" r="5" fill="#ffffff" /><circle cx="40" cy="56" r="2.5" fill="#000000" /><circle cx="60" cy="56" r="5" fill="#ffffff" /><circle cx="60" cy="56" r="2.5" fill="#000000" /><path d="M45 68 Q50 73 55 68" stroke="#1e3a8a" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+            "多拉奇瑪": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M25 50 C5 35 10 70 30 60 Z" fill="#eab308" stroke="#713f12" stroke-width="2.5"/><path d="M75 50 C95 35 90 70 70 60 Z" fill="#eab308" stroke="#713f12" stroke-width="2.5"/><circle cx="50" cy="55" r="22" fill="#facc15" stroke="#713f12" stroke-width="3" /><polygon points="35,40 42,25 48,42" fill="#facc15" stroke="#713f12" stroke-width="2.5" /><polygon points="65,40 58,25 52,42" fill="#facc15" stroke="#713f12" stroke-width="2.5" /><circle cx="42" cy="48" r="6" fill="#ffffff" stroke="#713f12" stroke-width="1.5" /><circle cx="42" cy="48" r="3" fill="#e11d48" /><circle cx="58" cy="48" r="6" fill="#ffffff" stroke="#713f12" stroke-width="1.5" /><circle cx="58" cy="48" r="3" fill="#e11d48" /><path d="M40 62 Q50 70 60 62" stroke="#713f12" stroke-width="2.5" fill="none" /><polygon points="44,63 46,68 48,63" fill="#ffffff" /><polygon points="56,63 54,68 52,63" fill="#ffffff" /></svg>`,
+            "多拉奇": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M25 50 C5 35 10 70 30 60 Z" fill="#a855f7" stroke="#3b0764" stroke-width="2.5"/><path d="M75 50 C95 35 90 70 70 60 Z" fill="#a855f7" stroke="#3b0764" stroke-width="2.5"/><circle cx="50" cy="55" r="22" fill="#c084fc" stroke="#3b0764" stroke-width="3" /><polygon points="35,40 42,25 48,42" fill="#c084fc" stroke="#3b0764" stroke-width="2.5" /><polygon points="65,40 58,25 52,42" fill="#c084fc" stroke="#3b0764" stroke-width="2.5" /><circle cx="42" cy="48" r="6" fill="#ffffff" stroke="#3b0764" stroke-width="1.5" /><circle cx="42" cy="48" r="3" fill="#000000" /><circle cx="58" cy="48" r="6" fill="#ffffff" stroke="#3b0764" stroke-width="1.5" /><circle cx="58" cy="48" r="3" fill="#000000" /><path d="M40 62 Q50 70 60 62" stroke="#3b0764" stroke-width="2.5" fill="none" /><polygon points="44,63 46,68 48,63" fill="#ffffff" /><polygon points="56,63 54,68 52,63" fill="#ffffff" /></svg>`,
+            "巨像兵": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="25" y="30" width="50" height="45" rx="5" fill="#d97706" stroke="#451a03" stroke-width="3" /><line x1="25" y1="52" x2="75" y2="52" stroke="#451a03" stroke-width="2" /><line x1="45" y1="30" x2="45" y2="52" stroke="#451a03" stroke-width="2" /><line x1="55" y1="52" x2="55" y2="75" stroke="#451a03" stroke-width="2" /><rect x="15" y="38" width="10" height="25" rx="2" fill="#b45309" stroke="#451a03" stroke-width="2" /><rect x="75" y="38" width="10" height="25" rx="2" fill="#b45309" stroke="#451a03" stroke-width="2" /><rect x="38" y="15" width="24" height="15" rx="3" fill="#d97706" stroke="#451a03" stroke-width="2.5" /><circle cx="45" cy="22" r="2.5" fill="#fef08a" /><circle cx="55" cy="22" r="2.5" fill="#fef08a" /></svg>`,
+            "石頭人": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="25" y="30" width="50" height="45" rx="5" fill="#4b5563" stroke="#111827" stroke-width="3" /><line x1="25" y1="48" x2="75" y2="48" stroke="#111827" stroke-width="2" /><line x1="50" y1="30" x2="50" y2="48" stroke="#111827" stroke-width="2" /><line x1="38" y1="48" x2="38" y2="75" stroke="#111827" stroke-width="2" /><line x1="62" y1="48" x2="62" y2="75" stroke="#111827" stroke-width="2" /><rect x="15" y="38" width="10" height="25" rx="2" fill="#374151" stroke="#111827" stroke-width="2" /><rect x="75" y="38" width="10" height="25" rx="2" fill="#374151" stroke="#111827" stroke-width="2" /><rect x="38" y="15" width="24" height="15" rx="3" fill="#4b5563" stroke="#111827" stroke-width="2.5" /><circle cx="45" cy="22" r="2.5" fill="#f87171" /><circle cx="55" cy="22" r="2.5" fill="#f87171" /></svg>`,
+            "霍伊米史萊姆": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M35 60 Q30 75 33 88" stroke="#ea580c" stroke-width="3.5" stroke-linecap="round" fill="none" /><path d="M45 62 Q45 78 43 89" stroke="#ea580c" stroke-width="3.5" stroke-linecap="round" fill="none" /><path d="M55 62 Q55 78 57 89" stroke="#ea580c" stroke-width="3.5" stroke-linecap="round" fill="none" /><path d="M65 60 Q70 75 67 88" stroke="#ea580c" stroke-width="3.5" stroke-linecap="round" fill="none" /><path d="M26 58 C22 30 32 15 50 15 C68 15 78 30 74 58 C60 62 40 62 26 58 Z" fill="#0d9488" stroke="#115e59" stroke-width="3"/><circle cx="42" cy="40" r="4" fill="#ffffff" /><circle cx="42" cy="40" r="2" fill="#000000" /><circle cx="58" cy="40" r="4" fill="#ffffff" /><circle cx="58" cy="40" r="2" fill="#000000" /><path d="M47 48 Q50 51 53 48" stroke="#115e59" stroke-width="2" fill="none" /></svg>`,
+            "見習惡魔": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M25 45 C25 20 40 10 50 5 C60 10 75 20 75 45 Z" fill="#16a34a" stroke="#14532d" stroke-width="2.5" /><ellipse cx="50" cy="45" rx="30" ry="6" fill="#15803d" stroke="#14532d" stroke-width="2.5" /><rect x="35" y="47" width="30" height="25" rx="6" fill="#fbcfe8" stroke="#14532d" stroke-width="2.5" /><path d="M25 55 Q10 45 15 65 Z" fill="#111827" stroke="#14532d" stroke-width="1.5" /><path d="M75 55 Q90 45 85 65 Z" fill="#111827" stroke="#14532d" stroke-width="1.5" /><polygon points="40,53 46,57 40,58" fill="#14532d" /><polygon points="60,53 54,57 60,58" fill="#14532d" /><circle cx="43" cy="56" r="1.5" fill="#dc2626" /><circle cx="57" cy="56" r="1.5" fill="#dc2626" /><path d="M45 64 Q50 68 55 64" stroke="#14532d" stroke-width="2" fill="none" /></svg>`,
+            "大木鎚": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="20" y="32" width="16" height="30" rx="3" transform="rotate(-30 20 32)" fill="#854d0e" stroke="#451a03" stroke-width="2" /><rect x="8" y="25" width="35" height="15" rx="2" transform="rotate(-30 8 25)" fill="#a16207" stroke="#451a03" stroke-width="2" /><circle cx="58" cy="58" r="22" fill="#f472b6" stroke="#4c0519" stroke-width="3" /><ellipse cx="58" cy="58" rx="14" ry="10" fill="#312e81" /><circle cx="53" cy="58" r="3" fill="#ffffff" /><circle cx="63" cy="58" r="3" fill="#ffffff" /><polygon points="42,42 35,30 48,36" fill="#f472b6" stroke="#4c0519" stroke-width="2" /><polygon points="74,42 81,30 68,36" fill="#f472b6" stroke="#4c0519" stroke-width="2" /></svg>`,
+            "猩猩獸小人": `<svg viewBox="0 0 100 100" class="w-16 h-16"><circle cx="50" cy="50" r="22" fill="#ca8a04" stroke="#422006" stroke-width="3" /><path d="M28 50 C28 25 72 25 72 50 C72 75 28 75 28 50 Z" fill="#15803d" stroke="#14532d" stroke-width="2" fill-opacity="0.5"/><path d="M32 45 Q50 32 68 45" stroke="#14532d" stroke-width="3" fill="none" /><circle cx="42" cy="50" r="3" fill="#ffffff" /><circle cx="42" cy="50" r="1.5" fill="#000000" /><circle cx="58" cy="50" r="3" fill="#ffffff" /><circle cx="58" cy="50" r="1.5" fill="#000000" /><circle cx="36" cy="56" r="3" fill="#f43f5e" /><circle cx="64" cy="56" r="3" fill="#f43f5e" /><path d="M47 58 Q50 61 53 58" stroke="#422006" stroke-width="2" fill="none" /></svg>`,
+            
+            // ================== 第二章 ==================
+            "小魔術師": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M25 80 L35 50 L65 50 L75 80 Z" fill="#3b82f6" stroke="#1e3a8a" stroke-width="2"/><circle cx="50" cy="40" r="10" fill="#fca5a5" stroke="#7f1d1d" stroke-width="2"/><path d="M20 35 L80 35 Z" stroke="#14532d" stroke-width="4"/><path d="M35 33 L50 10 L65 33 Z" fill="#22c55e" stroke="#14532d" stroke-width="2"/><line x1="85" y1="20" x2="75" y2="80" stroke="#78350f" stroke-width="3"/><circle cx="46" cy="38" r="2" fill="#111827"/><circle cx="54" cy="38" r="2" fill="#111827"/></svg>`,
+            "大鐵錘": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="20" y="32" width="16" height="30" rx="3" transform="rotate(-30 20 32)" fill="#9ca3af" stroke="#374151" stroke-width="2" /><rect x="8" y="25" width="35" height="15" rx="2" transform="rotate(-30 8 25)" fill="#6b7280" stroke="#374151" stroke-width="2" /><circle cx="58" cy="58" r="22" fill="#eab308" stroke="#713f12" stroke-width="3" /><ellipse cx="58" cy="58" rx="14" ry="10" fill="#312e81" /><circle cx="53" cy="58" r="3" fill="#ffffff" /><circle cx="63" cy="58" r="3" fill="#ffffff" /><polygon points="42,42 35,30 48,36" fill="#eab308" stroke="#713f12" stroke-width="2" /><polygon points="74,42 81,30 68,36" fill="#eab308" stroke="#713f12" stroke-width="2" /></svg>`,
+            "毒箭斗篷客": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 80 L35 40 C35 20 65 20 65 40 L70 80 Z" fill="#a855f7" stroke="#4c1d95" stroke-width="3"/><circle cx="50" cy="45" r="12" fill="#111827"/><circle cx="45" cy="45" r="2" fill="#facc15"/><circle cx="55" cy="45" r="2" fill="#facc15"/><line x1="20" y1="60" x2="80" y2="40" stroke="#fcd34d" stroke-width="2"/><polygon points="20,60 15,55 25,55" fill="#475569"/></svg>`,
+            "塔霍多拉奇": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M25 50 C5 35 10 70 30 60 Z" fill="#22c55e" stroke="#14532d" stroke-width="2.5"/><path d="M75 50 C95 35 90 70 70 60 Z" fill="#22c55e" stroke="#14532d" stroke-width="2.5"/><circle cx="50" cy="55" r="22" fill="#4ade80" stroke="#14532d" stroke-width="3" /><polygon points="35,40 42,25 48,42" fill="#4ade80" stroke="#14532d" stroke-width="2.5" /><polygon points="65,40 58,25 52,42" fill="#4ade80" stroke="#14532d" stroke-width="2.5" /><circle cx="42" cy="48" r="6" fill="#ffffff" stroke="#14532d" stroke-width="1.5" /><circle cx="42" cy="48" r="3" fill="#000000" /><circle cx="58" cy="48" r="6" fill="#ffffff" stroke="#14532d" stroke-width="1.5" /><circle cx="58" cy="48" r="3" fill="#000000" /><path d="M40 62 Q50 70 60 62" stroke="#14532d" stroke-width="2.5" fill="none" /><polygon points="44,63 46,68 48,63" fill="#ffffff" /><polygon points="56,63 54,68 52,63" fill="#ffffff" /></svg>`,
+            "骸骨": `<svg viewBox="0 0 100 100" class="w-16 h-16"><circle cx="50" cy="30" r="12" fill="#f3f4f6" stroke="#374151" stroke-width="2"/><circle cx="45" cy="28" r="3" fill="#111827"/><circle cx="55" cy="28" r="3" fill="#111827"/><path d="M47 35 L53 35" stroke="#111827" stroke-width="2"/><line x1="50" y1="42" x2="50" y2="70" stroke="#f3f4f6" stroke-width="4"/><line x1="40" y1="50" x2="60" y2="50" stroke="#f3f4f6" stroke-width="3"/><line x1="40" y1="55" x2="60" y2="55" stroke="#f3f4f6" stroke-width="3"/><line x1="30" y1="45" x2="50" y2="55" stroke="#f3f4f6" stroke-width="3"/><line x1="15" y1="35" x2="85" y2="75" stroke="#9ca3af" stroke-width="4"/></svg>`,
+            "迷你惡魔": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="35" y="45" width="30" height="35" rx="10" fill="#ef4444" stroke="#7f1d1d" stroke-width="3"/><circle cx="50" cy="35" r="18" fill="#ef4444" stroke="#7f1d1d" stroke-width="3"/><path d="M35 25 Q25 15 30 10" stroke="#7f1d1d" stroke-width="3" fill="none"/><path d="M65 25 Q75 15 70 10" stroke="#7f1d1d" stroke-width="3" fill="none"/><line x1="75" y1="20" x2="75" y2="80" stroke="#111827" stroke-width="3"/><path d="M70 25 L75 15 L80 25 M75 15 L75 25" stroke="#111827" stroke-width="2" fill="none"/><circle cx="43" cy="32" r="3" fill="#ffffff"/><circle cx="43" cy="32" r="1.5" fill="#000000"/><circle cx="57" cy="32" r="3" fill="#ffffff"/><circle cx="57" cy="32" r="1.5" fill="#000000"/><path d="M45 40 Q50 45 55 40" stroke="#7f1d1d" stroke-width="2" fill="none"/></svg>`,
+            "泡沫史萊姆": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M20 70 Q30 50 50 50 Q70 50 80 70 Q90 80 75 85 Q50 90 25 85 Q10 80 20 70 Z" fill="#22c55e" stroke="#14532d" stroke-width="3"/><circle cx="40" cy="65" r="4" fill="#ffffff" /><circle cx="40" cy="65" r="2" fill="#000000" /><circle cx="60" cy="65" r="4" fill="#ffffff" /><circle cx="60" cy="65" r="2" fill="#000000" /><path d="M45 75 Q50 80 55 75" stroke="#14532d" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`,
+            "徬徨鬼魂": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 15 C20 40 25 70 50 85 C75 70 80 40 50 15 Z" fill="#8b5cf6" stroke="#4c1d95" stroke-width="3"/><circle cx="42" cy="55" r="4" fill="#ffffff" /><circle cx="42" cy="55" r="2" fill="#000000" /><circle cx="58" cy="55" r="4" fill="#ffffff" /><circle cx="58" cy="55" r="2" fill="#000000" /><path d="M47 65 Q50 70 53 65" stroke="#4c1d95" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`,
+            "泥手": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 85 L35 50 Q35 40 40 40 Q45 40 45 50 L45 60 L50 45 Q50 35 55 35 Q60 35 60 45 L60 65 L65 55 Q65 45 70 45 Q75 45 75 55 L70 85 Z" fill="#d97706" stroke="#713f12" stroke-width="3"/></svg>`,
+            "鬼魂": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M25 65 C25 35 75 35 75 65 C75 80 80 85 70 85 C60 85 60 80 50 80 C40 80 40 85 30 85 C20 85 25 80 25 65 Z" fill="#facc15" stroke="#a16207" stroke-width="3"/><path d="M15 45 Q50 40 85 45 Z" fill="#9333ea" stroke="#4c1d95" stroke-width="2"/><path d="M35 42 L45 15 L65 40 Z" fill="#9333ea" stroke="#4c1d95" stroke-width="2"/><circle cx="40" cy="55" r="4" fill="#ffffff" /><circle cx="40" cy="55" r="2" fill="#000000" /><circle cx="60" cy="55" r="4" fill="#ffffff" /><circle cx="60" cy="55" r="2" fill="#000000" /><path d="M45 65 Q50 62 55 65" stroke="#a16207" stroke-width="2" fill="none"/><path d="M48 65 L48 75 Q50 78 52 75 L52 65 Z" fill="#ef4444"/></svg>`,
+            "笑面岩": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M20 50 C20 20 80 20 80 50 C80 80 20 80 20 50 Z" fill="#a8a29e" stroke="#374151" stroke-width="3"/><circle cx="35" cy="45" r="5" fill="#111827"/><circle cx="65" cy="45" r="5" fill="#111827"/><path d="M30 65 Q50 80 70 65" stroke="#111827" stroke-width="4" fill="none"/><path d="M35 68 L40 72 L45 69 L50 74 L55 69 L60 72 L65 68" stroke="#111827" stroke-width="2" fill="none"/></svg>`,
+            
+            // ================== 第三章新增 ==================
+            "乾屍": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="25" y="30" width="50" height="45" rx="5" fill="#8b5cf6" stroke="#4c1d95" stroke-width="3" /><line x1="25" y1="48" x2="75" y2="48" stroke="#4c1d95" stroke-width="2" /><line x1="50" y1="30" x2="50" y2="48" stroke="#4c1d95" stroke-width="2" /><line x1="38" y1="48" x2="38" y2="75" stroke="#4c1d95" stroke-width="2" /><line x1="62" y1="48" x2="62" y2="75" stroke="#4c1d95" stroke-width="2" /><rect x="10" y="35" width="15" height="30" rx="3" fill="#7c3aed" stroke="#4c1d95" stroke-width="2" transform="rotate(-15 15 35)"/><rect x="75" y="35" width="15" height="30" rx="3" fill="#7c3aed" stroke="#4c1d95" stroke-width="2" transform="rotate(15 85 35)"/><rect x="38" y="15" width="24" height="15" rx="3" fill="#8b5cf6" stroke="#4c1d95" stroke-width="2.5" /><circle cx="45" cy="22" r="2.5" fill="#fcd34d" /><circle cx="55" cy="22" r="2.5" fill="#fcd34d" /></svg>`,
+            "貝霍伊米史萊姆": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M35 60 Q30 80 33 93" stroke="#d97706" stroke-width="4" stroke-linecap="round" fill="none" /><path d="M45 62 Q45 83 43 94" stroke="#d97706" stroke-width="4" stroke-linecap="round" fill="none" /><path d="M55 62 Q55 83 57 94" stroke="#d97706" stroke-width="4" stroke-linecap="round" fill="none" /><path d="M65 60 Q70 80 67 93" stroke="#d97706" stroke-width="4" stroke-linecap="round" fill="none" /><path d="M26 58 C22 30 32 15 50 15 C68 15 78 30 74 58 C60 62 40 62 26 58 Z" fill="#84cc16" stroke="#4d7c0f" stroke-width="3"/><circle cx="42" cy="40" r="4" fill="#ffffff" /><circle cx="42" cy="40" r="2" fill="#000000" /><circle cx="58" cy="40" r="4" fill="#ffffff" /><circle cx="58" cy="40" r="2" fill="#000000" /><path d="M47 48 Q50 51 53 48" stroke="#4d7c0f" stroke-width="2" fill="none" /></svg>`,
+            "食火鳥": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 70 L40 40 C40 30 50 20 60 30 L70 20 L75 35 C85 45 80 65 60 70 Z" fill="#b45309" stroke="#78350f" stroke-width="3"/><path d="M75 35 L90 35 L80 45" fill="#fcd34d" stroke="#78350f" stroke-width="2"/><circle cx="65" cy="35" r="3" fill="#ffffff"/><circle cx="65" cy="35" r="1.5" fill="#000000"/><path d="M30 70 L20 85 L35 85 Z" fill="#b45309" stroke="#78350f" stroke-width="2"/></svg>`,
+            "烈焰怪": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 20 Q40 40 30 50 Q20 40 10 50 Q25 70 30 85 Q50 90 70 85 Q75 70 90 50 Q80 40 70 50 Q60 40 50 20 Z" fill="#f59e0b" stroke="#b45309" stroke-width="3"/><circle cx="40" cy="55" r="4" fill="#ffffff"/><circle cx="40" cy="55" r="2" fill="#000000"/><circle cx="60" cy="55" r="4" fill="#ffffff"/><circle cx="60" cy="55" r="2" fill="#000000"/><path d="M45 65 Q50 70 55 65" stroke="#b45309" stroke-width="2" fill="none"/></svg>`,
+            "沙漠鬼魂": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M25 75 C25 40 75 40 75 75 C75 90 80 95 70 95 C60 95 60 90 50 90 C40 90 40 95 30 95 C20 95 25 90 25 75 Z" fill="#fef3c7" stroke="#b45309" stroke-width="3"/><path d="M45 55 L45 80 Q50 85 55 80 L55 55 Z" fill="#fcd34d" stroke="#b45309" stroke-width="2"/><circle cx="35" cy="50" r="4" fill="#111827"/><circle cx="65" cy="50" r="4" fill="#111827"/><line x1="20" y1="45" x2="30" y2="40" stroke="#b45309" stroke-width="2"/><line x1="80" y1="45" x2="70" y2="40" stroke="#b45309" stroke-width="2"/></svg>`,
+            "木乃伊": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="25" y="30" width="50" height="45" rx="5" fill="#e5e7eb" stroke="#4b5563" stroke-width="3" /><line x1="25" y1="40" x2="75" y2="45" stroke="#9ca3af" stroke-width="2" /><line x1="25" y1="55" x2="75" y2="50" stroke="#9ca3af" stroke-width="2" /><line x1="25" y1="65" x2="75" y2="70" stroke="#9ca3af" stroke-width="2" /><rect x="15" y="38" width="10" height="25" rx="2" fill="#e5e7eb" stroke="#4b5563" stroke-width="2" /><rect x="75" y="38" width="10" height="25" rx="2" fill="#e5e7eb" stroke="#4b5563" stroke-width="2" /><rect x="38" y="15" width="24" height="15" rx="3" fill="#e5e7eb" stroke="#4b5563" stroke-width="2.5" /><circle cx="45" cy="22" r="2.5" fill="#111827" /><circle cx="55" cy="22" r="2.5" fill="#111827" /></svg>`,
+            "狩獵小惡魔": `<svg viewBox="0 0 100 100" class="w-16 h-16"><circle cx="50" cy="50" r="22" fill="#a855f7" stroke="#4c1d95" stroke-width="3" /><path d="M28 50 C28 25 72 25 72 50 C72 75 28 75 28 50 Z" fill="#84cc16" stroke="#4d7c0f" stroke-width="2" fill-opacity="0.8"/><path d="M32 45 Q50 32 68 45" stroke="#4d7c0f" stroke-width="3" fill="none" /><circle cx="42" cy="50" r="3" fill="#ffffff" /><circle cx="42" cy="50" r="1.5" fill="#000000" /><circle cx="58" cy="50" r="3" fill="#ffffff" /><circle cx="58" cy="50" r="1.5" fill="#000000" /><circle cx="36" cy="56" r="3" fill="#fb923c" /><circle cx="64" cy="56" r="3" fill="#fb923c" /><path d="M47 58 Q50 61 53 58" stroke="#4c1d95" stroke-width="2" fill="none" /></svg>`,
+            "巨蠍": `<svg viewBox="0 0 100 100" class="w-16 h-16"><ellipse cx="50" cy="65" rx="25" ry="15" fill="#d97706" stroke="#713f12" stroke-width="3"/><path d="M25 65 Q10 50 20 40 L30 45" fill="#d97706" stroke="#713f12" stroke-width="3"/><path d="M75 65 Q90 50 80 40 L70 45" fill="#d97706" stroke="#713f12" stroke-width="3"/><path d="M50 50 Q60 20 45 15 L35 20" fill="none" stroke="#d97706" stroke-width="6" stroke-linecap="round"/><polygon points="35,20 25,15 30,25" fill="#d97706" stroke="#713f12" stroke-width="2"/></svg>`,
+            "美拉鬼魂": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 15 C20 40 25 70 50 85 C75 70 80 40 50 15 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="3"/><path d="M50 25 C35 45 40 65 50 75 C60 65 65 45 50 25 Z" fill="#f59e0b" opacity="0.6"/><circle cx="42" cy="55" r="4" fill="#ffffff" /><circle cx="42" cy="55" r="2" fill="#000000" /><circle cx="58" cy="55" r="4" fill="#ffffff" /><circle cx="58" cy="55" r="2" fill="#000000" /><path d="M47 65 Q50 70 53 65" stroke="#7f1d1d" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`,
+            "史萊姆貝斯": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 18 C32 18 22 42 22 66 C22 84 34 88 50 88 C66 88 78 84 78 66 C78 42 68 18 50 18 Z" fill="#f97316" stroke="#c2410c" stroke-width="3"/><circle cx="40" cy="56" r="5" fill="#ffffff" /><circle cx="40" cy="56" r="2.5" fill="#000000" /><circle cx="60" cy="56" r="5" fill="#ffffff" /><circle cx="60" cy="56" r="2.5" fill="#000000" /><path d="M45 68 Q50 73 55 68" stroke="#c2410c" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`
+        };
+
+        // 一、二、三章困難難度掉落數據
+        const rawStages = {
+            // 第一章
+            "1-10": [{ name: "巨像兵", cost: 20, color: "黃", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }, { name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }],
+            "1-9": [{ name: "多拉奇瑪", cost: 30, color: "黃", rarity: 1 }, { name: "石頭人", cost: 19, color: "紅", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "1-8": [{ name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "1-7": [{ name: "多拉奇瑪", cost: 30, color: "黃", rarity: 1 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "1-6": [{ name: "萊姆史萊姆", cost: 40, color: "紫", rarity: 2 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "1-5": [{ name: "萊姆史萊姆", cost: 40, color: "紫", rarity: 2 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "1-4": [{ name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "1-3": [{ name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "1-2": [{ name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "1-1": [{ name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            
+            // 第二章
+            "2-20": [{ name: "小魔術師", cost: 30, color: "綠", rarity: 0 }, { name: "大鐵錘", cost: 29, color: "紅", rarity: 0 }, { name: "毒箭斗篷客", cost: 27, color: "紫", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "2-19": [{ name: "大鐵錘", cost: 29, color: "紅", rarity: 0 }, { name: "毒箭斗篷客", cost: 27, color: "紫", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "2-18": [{ name: "迷你惡魔", cost: 50, color: "紅", rarity: 2 }, { name: "大鐵錘", cost: 29, color: "紅", rarity: 0 }, { name: "泡沫史萊姆", cost: 25, color: "藍", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "2-17": [{ name: "迷你惡魔", cost: 50, color: "紅", rarity: 2 }, { name: "泥手", cost: 26, color: "黃", rarity: 0 }, { name: "泡沫史萊姆", cost: 25, color: "藍", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "2-16": [{ name: "迷你惡魔", cost: 50, color: "紅", rarity: 2 }, { name: "大鐵錘", cost: 29, color: "紅", rarity: 0 }, { name: "泥手", cost: 26, color: "黃", rarity: 0 }, { name: "鬼魂", cost: 23, color: "黃", rarity: 0 }],
+            "2-15": [{ name: "大鐵錘", cost: 29, color: "紅", rarity: 0 }, { name: "泥手", cost: 26, color: "黃", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }],
+            "2-14": [{ name: "迷你惡魔", cost: 50, color: "紅", rarity: 2 }, { name: "毒箭斗篷客", cost: 27, color: "紫", rarity: 0 }, { name: "泥手", cost: 26, color: "黃", rarity: 0 }, { name: "泡沫史萊姆", cost: 25, color: "藍", rarity: 0 }],
+            "2-13": [{ name: "迷你惡魔", cost: 50, color: "紅", rarity: 2 }, { name: "大鐵錘", cost: 29, color: "紅", rarity: 0 }, { name: "毒箭斗篷客", cost: 27, color: "紫", rarity: 0 }, { name: "泡沫史萊姆", cost: 25, color: "藍", rarity: 0 }],
+            "2-12": [{ name: "笑面岩", cost: 40, color: "藍", rarity: 1 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-11": [{ name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }],
+            "2-10": [{ name: "笑面岩", cost: 40, color: "藍", rarity: 1 }, { name: "泥手", cost: 26, color: "黃", rarity: 0 }, { name: "泡沫史萊姆", cost: 25, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-9": [{ name: "笑面岩", cost: 40, color: "藍", rarity: 1 }, { name: "毒箭斗篷客", cost: 27, color: "紫", rarity: 0 }, { name: "泥手", cost: 26, color: "黃", rarity: 0 }, { name: "泡沫史萊姆", cost: 25, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-8": [{ name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-7": [{ name: "笑面岩", cost: 40, color: "藍", rarity: 1 }, { name: "泥手", cost: 26, color: "黃", rarity: 0 }, { name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-6": [{ name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }, { name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-5": [{ name: "泡沫史萊姆", cost: 25, color: "藍", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-4": [{ name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-3": [{ name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-2": [{ name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "2-1": [{ name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            
+            // 第三章
+            "3-20": [{ name: "食火鳥", cost: 40, color: "藍", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
+            "3-19": [{ name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
+            "3-18": [{ name: "乾屍", cost: 60, color: "藍", rarity: 2 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "巨蠍", cost: 35, color: "黃", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "3-17": [{ name: "乾屍", cost: 60, color: "藍", rarity: 2 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "3-16": [{ name: "乾屍", cost: 60, color: "藍", rarity: 2 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "3-15": [{ name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
+            "3-14": [{ name: "乾屍", cost: 60, color: "藍", rarity: 2 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }],
+            "3-13": [{ name: "乾屍", cost: 60, color: "藍", rarity: 2 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "巨蠍", cost: 35, color: "黃", rarity: 0 }],
+            "3-12": [{ name: "貝霍伊米史萊姆", cost: 50, color: "紫", rarity: 1 }, { name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "美拉鬼魂", cost: 34, color: "紅", rarity: 0 }],
+            "3-11": [{ name: "貝霍伊米史萊姆", cost: 50, color: "紫", rarity: 1 }, { name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "美拉鬼魂", cost: 34, color: "紅", rarity: 0 }],
+            "3-10": [{ name: "貝霍伊米史萊姆", cost: 50, color: "紫", rarity: 1 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "3-9": [{ name: "貝霍伊米史萊姆", cost: 50, color: "紫", rarity: 1 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "3-8": [{ name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "巨蠍", cost: 35, color: "黃", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "3-7": [{ name: "貝霍伊米史萊姆", cost: 50, color: "紫", rarity: 1 }, { name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "巨蠍", cost: 35, color: "黃", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "3-6": [{ name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "美拉鬼魂", cost: 34, color: "紅", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }],
+            "3-5": [{ name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "美拉鬼魂", cost: 34, color: "紅", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }],
+            "3-4": [{ name: "巨蠍", cost: 35, color: "黃", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }],
+            "3-3": [{ name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "巨蠍", cost: 35, color: "黃", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
+            "3-2": [{ name: "美拉鬼魂", cost: 34, color: "紅", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }],
+            "3-1": [{ name: "巨蠍", cost: 35, color: "黃", rarity: 0 }, { name: "美拉鬼魂", cost: 34, color: "紅", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }]
+        };
+
+        // 整理記憶體資料
+        let memories = {};
+        Object.keys(rawStages).forEach(stage => {
+            rawStages[stage].forEach(item => {
+                if (!memories[item.name]) {
+                    memories[item.name] = { name: item.name, cost: item.cost, color: item.color, rarity: item.rarity, stages: [stage] };
+                } else {
+                    if (!memories[item.name].stages.includes(stage)) {
+                        memories[item.name].stages.push(stage);
+                    }
+                }
+            });
+        });
+
+        let memoryList = Object.values(memories).sort((a, b) => b.cost - a.cost);
+
+        // ==================== 跨版本相容資料遷移 ====================
+        const PERSISTENT_KEY = 'DQSG_obtained_memories_persistent_ch3';
+        const LEGACY_KEYS = [
+            'DQSG_obtained_memories_persistent_ch2_v2',
+            'DQSG_obtained_memories_persistent_ch2',
+            'DQSG_obtained_memories_persistent',
+            'DQSG_obtained_memories_final',
+            'DQSG_obtained_memories_v4',
+            'DQSG_obtained_memories_v3',
+            'DQSG_obtained_memories_v2',
+            'DQSG_obtained_memories'
+        ];
+
+        let obtainedState = {};
+
+        function loadAndMigrateData() {
+            let loadedData = {};
+            try {
+                const currentData = localStorage.getItem(PERSISTENT_KEY);
+                if (currentData) {
+                    return JSON.parse(currentData);
+                }
+            } catch(e) {}
+
+            for (let oldKey of LEGACY_KEYS) {
+                try {
+                    const oldData = localStorage.getItem(oldKey);
+                    if (oldData) {
+                        const parsed = JSON.parse(oldData);
+                        if (parsed && typeof parsed === 'object') {
+                            loadedData = { ...loadedData, ...parsed };
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            saveData(loadedData);
+            return loadedData;
+        }
+
+        function saveData(stateObj) {
+            try {
+                localStorage.setItem(PERSISTENT_KEY, JSON.stringify(stateObj));
+            } catch(e) {
+                console.warn("寫入本地儲存失敗", e);
+            }
+        }
+
+        obtainedState = loadAndMigrateData();
+        
+        memoryList.forEach(m => {
+            if (obtainedState[m.name] === undefined) {
+                obtainedState[m.name] = false;
+            }
+        });
+
+        // 頁面動態狀態
+        let currentFilter = 'all';
+        let activeTab = 'memories'; 
+        let currentChapterFilter = 'all';
+        let isDesktopLayout = false;
+
+        const typeColors = {
+            "紅": "from-red-500 to-rose-600 text-red-200 border-red-500",
+            "綠": "from-emerald-500 to-green-600 text-emerald-200 border-emerald-500",
+            "藍": "from-sky-500 to-blue-600 text-sky-200 border-sky-500",
+            "紫": "from-purple-500 to-fuchsia-600 text-purple-200 border-purple-500",
+            "黃": "from-amber-500 to-yellow-500 text-amber-100 border-yellow-500"
+        };
+
+        function init() {
+            const mql = window.matchMedia('(min-width: 1024px)');
+            mql.addEventListener('change', handleLayoutChange);
+            handleLayoutChange(mql); 
+
+            const btnAll = document.getElementById('btn-filter-all');
+            const btnTodo = document.getElementById('btn-filter-todo');
+            if (btnAll && btnTodo) {
+                btnAll.onclick = function() {
+                    currentFilter = 'all';
+                    updateFilterButtons();
+                    renderMemories();
+                };
+                btnTodo.onclick = function() {
+                    currentFilter = 'todo';
+                    updateFilterButtons();
+                    renderMemories();
+                };
+            }
+
+            const tabBtnMemories = document.getElementById('tab-button-memories');
+            const tabBtnStages = document.getElementById('tab-button-stages');
+            if (tabBtnMemories && tabBtnStages) {
+                tabBtnMemories.onclick = function() {
+                    activeTab = 'memories';
+                    updateTabUI();
+                };
+                tabBtnStages.onclick = function() {
+                    activeTab = 'stages';
+                    updateTabUI();
+                };
+            }
+
+            document.getElementById('btn-chap-all').onclick = () => setChapterFilter('all');
+            document.getElementById('btn-chap-1').onclick = () => setChapterFilter('1');
+            document.getElementById('btn-chap-2').onclick = () => setChapterFilter('2');
+            document.getElementById('btn-chap-3').onclick = () => setChapterFilter('3');
+
+            setChapterFilter('all');
+        }
+
+        function handleLayoutChange(e) {
+            isDesktopLayout = e.matches;
+            const badge = document.getElementById('device-badge');
+            const mobileTabs = document.getElementById('mobile-tabs-bar');
+            const sectionStages = document.getElementById('section-stages');
+            const sectionMemories = document.getElementById('section-memories');
+
+            if (isDesktopLayout) {
+                if (badge) {
+                    badge.innerHTML = `
+                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-indigo-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        <span>電腦橫屏版</span>
+                    `;
+                }
+                if (mobileTabs) mobileTabs.classList.add('hidden'); 
+                if (sectionStages) sectionStages.classList.remove('hidden');
+                if (sectionMemories) sectionMemories.classList.remove('hidden');
+            } else {
+                if (badge) {
+                    badge.innerHTML = `
+                        <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                        <span>手機直屏版</span>
+                    `;
+                }
+                if (mobileTabs) mobileTabs.classList.remove('hidden'); 
+                updateTabUI(); 
+            }
+        }
+
+        function updateTabUI() {
+            if (isDesktopLayout) return; 
+
+            const tabBtnMemories = document.getElementById('tab-button-memories');
+            const tabBtnStages = document.getElementById('tab-button-stages');
+            const sectionStages = document.getElementById('section-stages');
+            const sectionMemories = document.getElementById('section-memories');
+
+            if (!tabBtnMemories || !tabBtnStages || !sectionStages || !sectionMemories) return;
+
+            if (activeTab === 'memories') {
+                tabBtnMemories.className = "flex-1 flex items-center justify-center gap-3 py-4 rounded-xl text-lg font-black bg-indigo-600 text-white shadow-md shadow-indigo-600/20 transition-all duration-200";
+                tabBtnStages.className = "flex-1 flex items-center justify-center gap-3 py-4 rounded-xl text-lg font-extrabold text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all duration-200";
+                
+                sectionMemories.classList.remove('hidden');
+                sectionStages.classList.add('hidden');
+            } else {
+                tabBtnMemories.className = "flex-1 flex items-center justify-center gap-3 py-4 rounded-xl text-lg font-extrabold text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all duration-200";
+                tabBtnStages.className = "flex-1 flex items-center justify-center gap-3 py-4 rounded-xl text-lg font-black bg-indigo-600 text-white shadow-md shadow-indigo-600/20 transition-all duration-200";
+                
+                sectionMemories.classList.add('hidden');
+                sectionStages.classList.remove('hidden');
+            }
+        }
+
+        function setChapterFilter(chapterStr) {
+            currentChapterFilter = chapterStr;
+            updateChapterButtons();
+            renderMemories();
+            updateStatsAndRecommendations();
+        }
+
+        function updateChapterButtons() {
+            ['all', '1', '2', '3'].forEach(chap => {
+                const btn = document.getElementById(`btn-chap-${chap}`);
+                if (btn) {
+                    if (currentChapterFilter === chap) {
+                        btn.className = "flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-600/20 transition-all";
+                    } else {
+                        btn.className = "flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition-all border border-slate-600";
+                    }
+                }
+            });
+        }
+
+        function updateFilterButtons() {
+            const btnAll = document.getElementById('btn-filter-all');
+            const btnTodo = document.getElementById('btn-filter-todo');
+            if (!btnAll || !btnTodo) return;
+
+            if (currentFilter === 'all') {
+                btnAll.className = "px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-indigo-600 text-white transition shadow-md shadow-indigo-600/20";
+                btnTodo.className = "px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition";
+            } else {
+                btnAll.className = "px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition";
+                btnTodo.className = "px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-indigo-600 text-white transition shadow-md shadow-indigo-600/20";
+            }
+        }
+
+        function renderMemories() {
+            const container = document.getElementById('memories-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let chapterMemories = memoryList;
+            if (currentChapterFilter !== 'all') {
+                chapterMemories = memoryList.filter(m => m.stages.some(st => st.startsWith(`${currentChapterFilter}-`)));
+            }
+
+            const filteredList = currentFilter === 'all' 
+                ? chapterMemories 
+                : chapterMemories.filter(m => obtainedState[m.name] === false);
+
+            if (filteredList.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-16 text-center text-slate-500 bg-slate-800/50 rounded-2xl border border-slate-700 border-dashed">
+                        <svg class="w-10 h-10 mx-auto mb-3 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        <p class="text-base md:text-lg font-bold">目前條件下所有記憶體都已收集完畢！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredList.forEach(m => {
+                const isObtained = obtainedState[m.name] === true;
+                
+                let rarityBadge = '';
+                let borderStyle = 'border-slate-700';
+                let bgStyle = isObtained ? 'bg-slate-800/30 opacity-40' : 'bg-slate-800 hover:bg-slate-750 border-slate-700';
+
+                if (!isObtained) {
+                    if (m.rarity === 2) {
+                        rarityBadge = `<span class="px-2.5 py-0.5 text-xs font-black rounded-md bg-gradient-to-r from-purple-500 to-indigo-500 text-white animate-pulse shadow-sm">超稀奇</span>`;
+                        borderStyle = 'border-purple-500 shadow-lg shadow-purple-900/30';
+                    } else if (m.rarity === 1) {
+                        rarityBadge = `<span class="px-2.5 py-0.5 text-xs font-black rounded-md bg-amber-500 text-slate-950 shadow-sm">稀奇</span>`;
+                        borderStyle = 'border-amber-500/80 shadow-md shadow-amber-900/20';
+                    }
+                }
+
+                const monsterSvg = monsterIcons[m.name] || `
+                    <svg viewBox="0 0 100 100" class="w-16 h-16"><circle cx="50" cy="50" r="30" fill="#475569" /></svg>
+                `;
+
+                const displayStages = currentChapterFilter === 'all'
+                    ? m.stages
+                    : m.stages.filter(st => st.startsWith(`${currentChapterFilter}-`));
+
+                const card = document.createElement('div');
+                card.className = `p-4 sm:p-5 rounded-2xl border ${borderStyle} ${bgStyle} transition duration-200 cursor-pointer flex flex-col justify-between h-full relative group`;
+                card.innerHTML = `
+                    <div>
+                        <div class="flex gap-3 sm:gap-4 items-center mb-4">
+                            <div class="bg-slate-950 p-2 rounded-2xl border border-slate-700 flex-shrink-0 flex items-center justify-center shadow-inner relative overflow-hidden">
+                                ${monsterSvg}
+                                ${isObtained ? `
+                                <div class="absolute inset-0 bg-slate-950/70 flex items-center justify-center">
+                                    <svg class="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="flex-grow">
+                                <div class="flex justify-between items-start">
+                                    <span class="text-[11px] sm:text-sm font-bold text-slate-400">COST ${m.cost}</span>
+                                    <div class="flex items-center gap-1.5 sm:gap-2">
+                                        ${rarityBadge}
+                                        <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-br ${typeColors[m.color] || 'from-slate-400 to-slate-600'} inline-block shadow-sm" title="${m.color}屬性"></span>
+                                    </div>
+                                </div>
+                                <h3 class="text-base sm:text-lg md:text-xl font-bold text-slate-100 flex items-center gap-2 mt-1">
+                                    ${m.name}
+                                </h3>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <p class="text-[11px] md:text-sm text-slate-500 mb-1.5 font-bold">出現關卡：</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${displayStages.map(st => `
+                                    <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] md:text-sm rounded-lg bg-slate-900 text-slate-300 font-bold border border-slate-800 shadow-sm">${st}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-3 sm:pt-4 border-t border-slate-700/50 flex justify-between items-center">
+                        <span class="text-[11px] md:text-sm text-slate-400">
+                            狀態：${isObtained ? '<span class="text-emerald-400 font-bold">已收集</span>' : '<span class="text-amber-500 font-bold">未取得</span>'}
+                        </span>
+                        <span class="text-[11px] md:text-sm font-bold ${isObtained ? 'text-slate-400' : 'text-indigo-400 group-hover:text-indigo-300'} flex items-center gap-1">
+                            ${isObtained ? '設為未獲得' : '標記已獲得'}
+                            <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </span>
+                    </div>
+                `;
+
+                card.onclick = function() {
+                    toggleObtained(m.name);
+                };
+
+                container.appendChild(card);
+            });
+        }
+
+        function toggleObtained(name) {
+            obtainedState[name] = !obtainedState[name];
+            saveData(obtainedState);
+            renderMemories();
+            updateStatsAndRecommendations();
+        }
+
+        function updateStatsAndRecommendations() {
+            let chapterMemories = memoryList;
+            if (currentChapterFilter !== 'all') {
+                chapterMemories = memoryList.filter(m => m.stages.some(st => st.startsWith(`${currentChapterFilter}-`)));
+            }
+            const totalCount = chapterMemories.length;
+            const obtainedCount = chapterMemories.filter(m => obtainedState[m.name] === true).length;
+            const percent = totalCount > 0 ? Math.round((obtainedCount / totalCount) * 100) : 0;
+
+            const progressTitle = document.getElementById('progress-title');
+            const progressText = document.getElementById('progress-text');
+            const progressBar = document.getElementById('progress-bar');
+            
+            if (progressTitle) {
+                progressTitle.innerText = currentChapterFilter === 'all' ? '整體收集進度' : `第 ${currentChapterFilter} 章進度`;
+            }
+            if (progressText) progressText.innerText = `${obtainedCount}/${totalCount} (${percent}%)`;
+            if (progressBar) progressBar.style.width = `${percent}%`;
+
+            const stageStats = [];
+            
+            Object.keys(rawStages).forEach(stage => {
+                if (currentChapterFilter !== 'all' && !stage.startsWith(`${currentChapterFilter}-`)) {
+                    return;
+                }
+
+                const totalInStage = rawStages[stage].length;
+                const unobtainedList = rawStages[stage].filter(item => obtainedState[item.name] === false);
+                const unobtainedCount = unobtainedList.length;
+
+                const hasUnobtainedSuperRare = unobtainedList.some(item => item.rarity === 2);
+                const hasUnobtainedRare = unobtainedList.some(item => item.rarity === 1);
+
+                stageStats.push({
+                    stageName: stage,
+                    total: totalInStage,
+                    unobtainedCount: unobtainedCount,
+                    hasUnobtainedSuperRare: hasUnobtainedSuperRare,
+                    hasUnobtainedRare: hasUnobtainedRare
+                });
+            });
+
+            stageStats.sort((a, b) => {
+                if (b.unobtainedCount !== a.unobtainedCount) {
+                    return b.unobtainedCount - a.unobtainedCount;
+                }
+                const hasRareA = a.hasUnobtainedSuperRare || a.hasUnobtainedRare;
+                const hasRareB = b.hasUnobtainedSuperRare || b.hasUnobtainedRare;
+                if (hasRareB !== hasRareA) {
+                    return hasRareB ? 1 : -1;
+                }
+                const partsA = a.stageName.split('-');
+                const partsB = b.stageName.split('-');
+                const chapA = parseInt(partsA[0]);
+                const stageA = parseInt(partsA[1]);
+                const chapB = parseInt(partsB[0]);
+                const stageB = parseInt(partsB[1]);
+                
+                if (chapB !== chapA) {
+                    return chapB - chapA; 
+                }
+                return stageB - stageA;
+            });
+
+            const recContainer = document.getElementById('stage-recommendations');
+            if (!recContainer) return;
+            recContainer.innerHTML = '';
+            
+            if (stageStats.length === 0) {
+                 recContainer.innerHTML = `
+                    <div class="py-8 text-center text-slate-500 bg-slate-800/50 rounded-2xl border border-slate-700 border-dashed">
+                        <p class="text-sm font-bold">目前選擇的章節沒有推薦關卡。</p>
+                    </div>
+                `;
+                return;
+            }
+
+            stageStats.forEach((st, index) => {
+                const isCompleted = st.unobtainedCount === 0;
+                
+                let cardClass = "p-3 sm:p-4 rounded-xl flex flex-col gap-2 sm:gap-3 transition-all ";
+                let badgeClass = "";
+
+                if (isCompleted) {
+                    cardClass += "bg-slate-800/40 border border-slate-800/60 text-slate-500 opacity-65";
+                    badgeClass = "bg-slate-700 text-slate-400";
+                } else {
+                    cardClass += "bg-slate-700/80 hover:bg-slate-700 border border-slate-700 text-slate-100";
+                    
+                    if (index === 0) {
+                        cardClass += " ring-2 ring-indigo-500/50 shadow-md shadow-indigo-900/40";
+                        badgeClass = "bg-rose-500 text-white font-bold";
+                    } else if (st.hasUnobtainedSuperRare || st.hasUnobtainedRare) {
+                        badgeClass = "bg-amber-500 text-slate-950 font-bold";
+                    } else {
+                        badgeClass = "bg-slate-700 text-slate-300 border border-slate-600";
+                    }
+                }
+
+                let recommendBadge = '';
+                if (!isCompleted && index === 0) {
+                    recommendBadge = `<span class="text-[10px] sm:text-xs font-black px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded bg-rose-600 text-white mr-1 sm:mr-2 shadow-sm">最優先</span>`;
+                }
+
+                let stageRarityIndicator = '';
+                if (st.hasUnobtainedSuperRare) {
+                    stageRarityIndicator += `
+                        <span class="px-2 py-1 text-[10px] sm:text-xs font-black rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-400 animate-pulse shadow-[0_0_8px_rgba(192,132,252,0.8)]"></span>
+                            有超稀奇未收
+                        </span>
+                    `;
+                }
+                if (st.hasUnobtainedRare) {
+                    stageRarityIndicator += `
+                        <span class="px-2 py-1 text-[10px] sm:text-xs font-black rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-400"></span>
+                            有稀奇未收
+                        </span>
+                    `;
+                }
+
+                const item = document.createElement('div');
+                item.className = cardClass;
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <span class="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold ${isCompleted ? 'bg-slate-800 text-slate-600' : 'bg-indigo-600/30 text-indigo-400 border border-indigo-500/20'}">
+                                ${index + 1}
+                            </span>
+                            <div>
+                                <div class="flex items-center">
+                                    ${recommendBadge}
+                                    <span class="font-bold text-sm sm:text-base md:text-lg ${isCompleted ? 'line-through text-slate-500' : 'text-slate-100'}">關卡 ${st.stageName}</span>
+                                </div>
+                                <p class="text-[10px] sm:text-xs md:text-sm text-slate-400 mt-0.5">
+                                    記憶體總數: ${st.total}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right flex items-center h-full pt-1">
+                            ${isCompleted 
+                                ? `<span class="text-xs sm:text-sm font-bold text-emerald-500 flex items-center gap-1">
+                                    <svg class="w-3 h-3 sm:w-4 sm:h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    已全收</span>`
+                                : `<span class="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs md:text-sm rounded-lg font-bold ${badgeClass}">缺 ${st.unobtainedCount} 個</span>`
+                            }
+                        </div>
+                    </div>
+                    
+                    ${stageRarityIndicator ? `
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2 pt-2 sm:pt-3 border-t border-slate-600/40">
+                        ${stageRarityIndicator}
+                    </div>
+                    ` : ''}
+                `;
+
+                recContainer.appendChild(item);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
+
+
+```
