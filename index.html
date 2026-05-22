@@ -24,7 +24,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen pb-16">
 
-    <!-- 頂部導覽列 (標題與社群推薦大橫幅) -->
+    <!-- 頂部導覽列 -->
     <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 shadow-md">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col gap-3 sm:gap-4">
 
@@ -98,6 +98,7 @@
                 <button id="btn-chap-2" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第二章</button>
                 <button id="btn-chap-3" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第三章</button>
                 <button id="btn-chap-4" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第四章</button>
+                <button id="btn-chap-5" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第五章</button>
             </div>
         </div>
 
@@ -153,14 +154,26 @@
 
             <!-- 記憶體清單區域 (右側兩欄) -->
             <div id="section-memories" class="lg:col-span-2 space-y-6">
-                <!-- 獲得狀態過濾區 -->
-                <div class="bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-lg">
-                    <div class="flex gap-3 w-full sm:w-auto">
-                        <button id="btn-filter-all" class="flex-1 sm:flex-none px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-indigo-600 text-white transition shadow-md shadow-indigo-600/20">全部顯示</button>
-                        <button id="btn-filter-todo" class="flex-1 sm:flex-none px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition">僅顯示未獲得</button>
+                <!-- 獲得狀態過濾區 & 搜尋區 -->
+                <div class="bg-slate-800 rounded-2xl p-4 sm:p-5 border border-slate-700 flex flex-col gap-4 shadow-lg">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div class="flex gap-3 w-full sm:w-auto">
+                            <button id="btn-filter-all" class="flex-1 sm:flex-none px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-indigo-600 text-white transition shadow-md shadow-indigo-600/20">全部顯示</button>
+                            <button id="btn-filter-todo" class="flex-1 sm:flex-none px-6 py-3 text-sm md:text-base font-bold rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 transition">僅顯示未獲得</button>
+                        </div>
+                        <div class="text-xs md:text-sm text-slate-400 font-medium">
+                            點擊卡片可切換 <span class="text-emerald-400 font-bold">已獲得</span> 狀態
+                        </div>
                     </div>
-                    <div class="text-xs md:text-sm text-slate-400 font-medium">
-                        點擊卡片可切換 <span class="text-emerald-400 font-bold">已獲得</span> 狀態
+                    
+                    <!-- 搜尋列 -->
+                    <div class="relative w-full">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" id="search-input" placeholder="模糊搜尋記憶體名稱 (例如：史萊姆)..." class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm md:text-base rounded-xl pl-12 pr-4 py-3 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder-slate-500 shadow-inner">
                     </div>
                 </div>
 
@@ -189,7 +202,7 @@
     </footer>
 
     <script>
-        // 內嵌一、二、三、四章精緻怪物 SVG 圖像
+        // 內嵌一到五章精緻怪物 SVG 圖像
         const monsterIcons = {
             // 第一章
             "萊姆史萊姆": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 15 C30 15 20 40 20 65 C20 85 35 90 50 90 C65 90 80 85 80 65 C80 40 70 15 50 15 Z" fill="#4ade80" stroke="#166534" stroke-width="3"/><path d="M50 15 C45 25 55 25 50 15" stroke="#166534" stroke-width="3" fill="none"/><circle cx="40" cy="55" r="5" fill="#ffffff" /><circle cx="40" cy="55" r="2.5" fill="#000000" /><circle cx="60" cy="55" r="5" fill="#ffffff" /><circle cx="60" cy="55" r="2.5" fill="#000000" /><path d="M44 68 Q50 74 56 68" stroke="#166534" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
@@ -228,7 +241,7 @@
             "美拉鬼魂": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 15 C20 40 25 70 50 85 C75 70 80 40 50 15 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="3"/><path d="M50 25 C35 45 40 65 50 75 C60 65 65 45 50 25 Z" fill="#f59e0b" opacity="0.6"/><circle cx="42" cy="55" r="4" fill="#ffffff" /><circle cx="42" cy="55" r="2" fill="#000000" /><circle cx="58" cy="55" r="4" fill="#ffffff" /><circle cx="58" cy="55" r="2" fill="#000000" /><path d="M47 65 Q50 70 53 65" stroke="#7f1d1d" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`,
             "史萊姆貝斯": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 18 C32 18 22 42 22 66 C22 84 34 88 50 88 C66 88 78 84 78 66 C78 42 68 18 50 18 Z" fill="#f97316" stroke="#c2410c" stroke-width="3"/><circle cx="40" cy="56" r="5" fill="#ffffff" /><circle cx="40" cy="56" r="2.5" fill="#000000" /><circle cx="60" cy="56" r="5" fill="#ffffff" /><circle cx="60" cy="56" r="2.5" fill="#000000" /><path d="M45 68 Q50 73 55 68" stroke="#c2410c" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
 
-            // ================== 第四章新增 ==================
+            // 第四章
             "亡靈劍士": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 80 C30 40 70 40 70 80" fill="#0f766e" stroke="#042f2e" stroke-width="3"/><circle cx="50" cy="30" r="12" fill="#f3f4f6" stroke="#374151" stroke-width="2"/><circle cx="45" cy="28" r="3" fill="#111827"/><circle cx="55" cy="28" r="3" fill="#111827"/><line x1="20" y1="20" x2="80" y2="90" stroke="#fcd34d" stroke-width="4"/><polygon points="20,20 15,10 30,15" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/></svg>`,
             "巨大鎚": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="15" y="30" width="20" height="35" rx="3" transform="rotate(-30 15 30)" fill="#65a30d" stroke="#3f6212" stroke-width="2" /><rect x="5" y="20" width="45" height="20" rx="2" transform="rotate(-30 5 20)" fill="#15803d" stroke="#14532d" stroke-width="2" /><circle cx="58" cy="58" r="25" fill="#22c55e" stroke="#14532d" stroke-width="3" /><ellipse cx="58" cy="58" rx="16" ry="12" fill="#064e3b" /><circle cx="52" cy="58" r="4" fill="#ffffff" /><circle cx="64" cy="58" r="4" fill="#ffffff" /><polygon points="40,40 32,25 48,32" fill="#22c55e" stroke="#14532d" stroke-width="2" /><polygon points="76,40 84,25 68,32" fill="#22c55e" stroke="#14532d" stroke-width="2" /></svg>`,
             "獨眼小丑": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M25 80 L35 40 L65 40 L75 80 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/><circle cx="50" cy="35" r="18" fill="#dc2626" stroke="#7f1d1d" stroke-width="3"/><circle cx="50" cy="30" r="8" fill="#ffffff" stroke="#7f1d1d" stroke-width="2"/><circle cx="50" cy="30" r="3" fill="#000000"/><path d="M40 45 Q50 55 60 45" stroke="#7f1d1d" stroke-width="3" fill="none"/><line x1="15" y1="60" x2="85" y2="40" stroke="#78350f" stroke-width="5"/><circle cx="85" cy="40" r="4" fill="#78350f"/></svg>`,
@@ -238,12 +251,21 @@
             "人面樹": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M40 90 L40 50 L60 50 L60 90 Z" fill="#b45309" stroke="#713f12" stroke-width="3"/><path d="M20 50 C20 20 80 20 80 50 C80 65 20 65 20 50 Z" fill="#22c55e" stroke="#14532d" stroke-width="3"/><circle cx="45" cy="65" r="3" fill="#ffffff"/><circle cx="45" cy="65" r="1.5" fill="#000000"/><circle cx="55" cy="65" r="3" fill="#ffffff"/><circle cx="55" cy="65" r="1.5" fill="#000000"/><path d="M45 75 Q50 80 55 75" stroke="#713f12" stroke-width="2" fill="none"/></svg>`,
             "半獸人": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M35 80 C35 50 65 50 65 80 Z" fill="#d97706" stroke="#713f12" stroke-width="3"/><circle cx="50" cy="45" r="16" fill="#f59e0b" stroke="#713f12" stroke-width="3"/><circle cx="43" cy="42" r="3" fill="#ffffff"/><circle cx="43" cy="42" r="1.5" fill="#000000"/><circle cx="57" cy="42" r="3" fill="#ffffff"/><circle cx="57" cy="42" r="1.5" fill="#000000"/><path d="M45 52 Q50 58 55 52" stroke="#713f12" stroke-width="2" fill="none"/><polygon points="45,52 47,48 49,52" fill="#ffffff"/><polygon points="55,52 53,48 51,52" fill="#ffffff"/><line x1="20" y1="20" x2="80" y2="90" stroke="#9ca3af" stroke-width="3"/><polygon points="20,20 15,10 25,10" fill="#f87171" stroke="#b91c1c" stroke-width="2"/></svg>`,
             "妖怪蘑菇": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M40 85 L40 50 L60 50 L60 85 Z" fill="#fde68a" stroke="#b45309" stroke-width="3"/><path d="M20 50 C20 20 80 20 80 50 Z" fill="#d946ef" stroke="#701a75" stroke-width="3"/><circle cx="35" cy="40" r="4" fill="#ffffff"/><circle cx="65" cy="40" r="5" fill="#ffffff"/><circle cx="50" cy="30" r="3" fill="#ffffff"/><circle cx="45" cy="65" r="2" fill="#000000"/><circle cx="55" cy="65" r="2" fill="#000000"/><path d="M47 72 Q50 76 53 72" stroke="#b45309" stroke-width="2" fill="none"/></svg>`,
-            "狂笑袋": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 85 L35 50 Q35 40 40 40 Q45 40 45 50 L45 60 L50 45 Q50 35 55 35 Q60 35 60 45 L60 65 L65 55 Q65 45 70 45 Q75 45 75 55 L70 85 Z" fill="#93c5fd" stroke="#1e3a8a" stroke-width="3"/><path d="M35 70 Q50 85 65 70" fill="none" stroke="#1e3a8a" stroke-width="3"/><path d="M45 75 Q50 90 55 75 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/><circle cx="40" cy="55" r="3" fill="#111827"/><circle cx="60" cy="55" r="3" fill="#111827"/></svg>`
+            "狂笑袋": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 85 L35 50 Q35 40 40 40 Q45 40 45 50 L45 60 L50 45 Q50 35 55 35 Q60 35 60 45 L60 65 L65 55 Q65 45 70 45 Q75 45 75 55 L70 85 Z" fill="#93c5fd" stroke="#1e3a8a" stroke-width="3"/><path d="M35 70 Q50 85 65 70" fill="none" stroke="#1e3a8a" stroke-width="3"/><path d="M45 75 Q50 90 55 75 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/><circle cx="40" cy="55" r="3" fill="#111827"/><circle cx="60" cy="55" r="3" fill="#111827"/></svg>`,
+            
+            // 第五章新增
+            "黃色史萊姆": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 18 C32 18 22 42 22 66 C22 84 34 88 50 88 C66 88 78 84 78 66 C78 42 68 18 50 18 Z" fill="#facc15" stroke="#a16207" stroke-width="3"/><circle cx="40" cy="56" r="5" fill="#ffffff" /><circle cx="40" cy="56" r="2.5" fill="#000000" /><circle cx="60" cy="56" r="5" fill="#ffffff" /><circle cx="60" cy="56" r="2.5" fill="#000000" /><path d="M45 68 Q50 73 55 68" stroke="#a16207" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
+            "半魚人": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 85 L35 50 Q35 30 50 30 Q65 30 65 50 L70 85 Z" fill="#3b82f6" stroke="#1e3a8a" stroke-width="3"/><path d="M20 50 L35 40 L35 60 Z" fill="#facc15" stroke="#a16207" stroke-width="2"/><path d="M80 50 L65 40 L65 60 Z" fill="#facc15" stroke="#a16207" stroke-width="2"/><path d="M40 30 L50 10 L60 30 Z" fill="#facc15" stroke="#a16207" stroke-width="2"/><line x1="30" y1="65" x2="70" y2="65" stroke="#1e3a8a" stroke-width="2"/><line x1="32" y1="75" x2="68" y2="75" stroke="#1e3a8a" stroke-width="2"/><circle cx="42" cy="45" r="3" fill="#ffffff"/><circle cx="58" cy="45" r="3" fill="#ffffff"/><circle cx="42" cy="45" r="1.5" fill="#000000"/><circle cx="58" cy="45" r="1.5" fill="#000000"/><path d="M45 55 Q50 60 55 55" stroke="#1e3a8a" stroke-width="2" fill="none"/></svg>`,
+            "麻痺水母": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M35 60 Q30 80 35 90" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M45 60 Q45 80 43 90" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M55 60 Q55 80 57 90" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M65 60 Q70 80 65 90" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M26 58 C22 30 32 20 50 20 C68 20 78 30 74 58 C60 62 40 62 26 58 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="3"/><circle cx="42" cy="45" r="3" fill="#111827" /><circle cx="58" cy="45" r="3" fill="#111827" /><path d="M47 52 Q50 55 53 52" stroke="#ca8a04" stroke-width="2" fill="none" /></svg>`,
+            "軍隊蟹": `<svg viewBox="0 0 100 100" class="w-16 h-16"><ellipse cx="50" cy="55" rx="25" ry="18" fill="#ef4444" stroke="#7f1d1d" stroke-width="3"/><path d="M25 55 Q10 40 20 30" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/><circle cx="20" cy="30" r="8" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/><path d="M75 55 Q90 40 80 30" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="30" r="8" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/><line x1="35" y1="70" x2="30" y2="85" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/><line x1="45" y1="72" x2="45" y2="88" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/><line x1="55" y1="72" x2="55" y2="88" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/><line x1="65" y1="70" x2="70" y2="85" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="50" r="4" fill="#ffffff"/><circle cx="60" cy="50" r="4" fill="#ffffff"/><circle cx="40" cy="50" r="2" fill="#000000"/><circle cx="60" cy="50" r="2" fill="#000000"/><path d="M45 60 Q50 65 55 60" stroke="#7f1d1d" stroke-width="2" fill="none"/></svg>`,
+            "亡者的靈魂": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 15 C20 40 25 70 50 90 C75 70 80 40 50 15 Z" fill="#6ee7b7" stroke="#047857" stroke-width="3"/><path d="M50 25 C35 45 40 65 50 75 C60 65 65 45 50 25 Z" fill="#a7f3d0" opacity="0.8"/><circle cx="42" cy="55" r="4" fill="#111827" /><circle cx="42" cy="55" r="1.5" fill="#ef4444" /><circle cx="58" cy="55" r="4" fill="#111827" /><circle cx="58" cy="55" r="1.5" fill="#ef4444" /><path d="M47 65 Q50 60 53 65" stroke="#047857" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`,
+            "邪惡義鳥": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 70 L40 40 C40 30 50 20 60 30 L70 20 L75 35 C85 45 80 65 60 70 Z" fill="#65a30d" stroke="#3f6212" stroke-width="3"/><path d="M75 35 L90 35 L80 45" fill="#fcd34d" stroke="#78350f" stroke-width="2"/><circle cx="65" cy="35" r="3" fill="#ffffff"/><circle cx="65" cy="35" r="1.5" fill="#000000"/><path d="M30 70 L20 85 L35 85 Z" fill="#65a30d" stroke="#3f6212" stroke-width="2"/></svg>`,
+            "鐵蠍": `<svg viewBox="0 0 100 100" class="w-16 h-16"><ellipse cx="50" cy="65" rx="25" ry="15" fill="#6b21a8" stroke="#3b0764" stroke-width="3"/><path d="M25 65 Q10 50 20 40 L30 45" fill="#6b21a8" stroke="#3b0764" stroke-width="3"/><path d="M75 65 Q90 50 80 40 L70 45" fill="#6b21a8" stroke="#3b0764" stroke-width="3"/><path d="M50 50 Q60 20 45 15 L35 20" fill="none" stroke="#6b21a8" stroke-width="6" stroke-linecap="round"/><polygon points="35,20 25,15 30,25" fill="#6b21a8" stroke="#3b0764" stroke-width="2"/></svg>`,
+            "小烏賊": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M20 50 C20 20 80 20 80 50 L65 70 L50 60 L35 70 Z" fill="#fbcfe8" stroke="#9d174d" stroke-width="3"/><path d="M30 70 Q25 90 20 85" fill="none" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round"/><path d="M40 65 Q45 90 40 95" fill="none" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round"/><path d="M60 65 Q55 90 60 95" fill="none" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round"/><path d="M70 70 Q75 90 80 85" fill="none" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="45" r="4" fill="#ffffff"/><circle cx="40" cy="45" r="2" fill="#000000"/><circle cx="60" cy="45" r="4" fill="#ffffff"/><circle cx="60" cy="45" r="2" fill="#000000"/></svg>`,
+            "奇美拉": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M35 70 C25 60 25 40 40 30 C55 20 75 30 80 50 C85 70 60 85 45 80 Z" fill="#854d0e" stroke="#451a03" stroke-width="3"/><path d="M25 40 Q10 20 30 25 Z" fill="#d8b4fe" stroke="#7e22ce" stroke-width="2"/><path d="M75 35 Q90 15 70 25 Z" fill="#d8b4fe" stroke="#7e22ce" stroke-width="2"/><circle cx="55" cy="45" r="4" fill="#ffffff"/><circle cx="55" cy="45" r="2" fill="#000000"/><path d="M65 45 L75 40 L70 50 Z" fill="#fcd34d" stroke="#b45309" stroke-width="2"/></svg>`
         };
 
-        // 一、二、三、四章困難難度掉落數據
         const rawStages = {
-            // 第一章
             "1-10": [{ name: "巨像兵", cost: 20, color: "黃", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }, { name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }],
             "1-9": [{ name: "多拉奇瑪", cost: 30, color: "黃", rarity: 1 }, { name: "石頭人", cost: 19, color: "紅", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
             "1-8": [{ name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
@@ -255,7 +277,6 @@
             "1-2": [{ name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
             "1-1": [{ name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
             
-            // 第二章
             "2-20": [{ name: "小魔術師", cost: 30, color: "綠", rarity: 0 }, { name: "大鐵錘", cost: 29, color: "紅", rarity: 0 }, { name: "毒箭斗篷客", cost: 27, color: "紫", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
             "2-19": [{ name: "大鐵錘", cost: 29, color: "紅", rarity: 0 }, { name: "毒箭斗篷客", cost: 27, color: "紫", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
             "2-18": [{ name: "迷你惡魔", cost: 50, color: "紅", rarity: 2 }, { name: "大鐵錘", cost: 29, color: "紅", rarity: 0 }, { name: "泡沫史萊姆", cost: 25, color: "藍", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
@@ -277,7 +298,6 @@
             "2-2": [{ name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
             "2-1": [{ name: "鬼魂", cost: 23, color: "黃", rarity: 0 }, { name: "猩猩獸小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
             
-            // 第三章
             "3-20": [{ name: "食火鳥", cost: 40, color: "藍", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
             "3-19": [{ name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "沙漠鬼魂", cost: 38, color: "綠", rarity: 0 }, { name: "木乃伊", cost: 37, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
             "3-18": [{ name: "乾屍", cost: 60, color: "藍", rarity: 2 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "巨蠍", cost: 35, color: "黃", rarity: 0 }, { name: "骸骨", cost: 21, color: "藍", rarity: 0 }],
@@ -299,7 +319,6 @@
             "3-2": [{ name: "美拉鬼魂", cost: 34, color: "紅", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }],
             "3-1": [{ name: "巨蠍", cost: 35, color: "黃", rarity: 0 }, { name: "美拉鬼魂", cost: 34, color: "紅", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }],
 
-            // 第四章
             "4-20": [{ name: "亡靈劍士", cost: 50, color: "紫", rarity: 0 }, { name: "巨目蟲", cost: 49, color: "藍", rarity: 0 }, { name: "人面樹", cost: 47, color: "綠", rarity: 0 }, { name: "半獸人", cost: 46, color: "藍", rarity: 0 }],
             "4-19": [{ name: "巨大鎚", cost: 70, color: "綠", rarity: 2 }, { name: "黃金半獸人", cost: 49, color: "黃", rarity: 0 }, { name: "狂笑袋", cost: 43, color: "黃", rarity: 0 }, { name: "大鐵鎚", cost: 29, color: "紅", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }],
             "4-18": [{ name: "巨大鎚", cost: 70, color: "綠", rarity: 2 }, { name: "惡作劇鬼魂", cost: 48, color: "紅", rarity: 0 }, { name: "人面樹", cost: 47, color: "綠", rarity: 0 }, { name: "妖怪蘑菇", cost: 44, color: "紫", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }],
@@ -319,10 +338,31 @@
             "4-4": [{ name: "獨眼小丑", cost: 60, color: "黃", rarity: 1 }, { name: "惡作劇鬼魂", cost: 48, color: "紅", rarity: 0 }, { name: "妖怪蘑菇", cost: 44, color: "紫", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
             "4-3": [{ name: "惡作劇鬼魂", cost: 48, color: "紅", rarity: 0 }, { name: "妖怪蘑菇", cost: 44, color: "紫", rarity: 0 }, { name: "大鐵鎚", cost: 29, color: "紅", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }],
             "4-2": [{ name: "妖怪蘑菇", cost: 44, color: "紫", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
-            "4-1": [{ name: "妖怪蘑菇", cost: 44, color: "紫", rarity: 0 }, { name: "大鐵鎚", cost: 29, color: "紅", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }]
+            "4-1": [{ name: "妖怪蘑菇", cost: 44, color: "紫", rarity: 0 }, { name: "大鐵鎚", cost: 29, color: "紅", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            
+            // 第五章新增
+            "5-20": [{ name: "邪惡義鳥", cost: 60, color: "綠", rarity: 0 }, { name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "奇美拉", cost: 51, color: "紫", rarity: 0 }],
+            "5-19": [{ name: "黃色史萊姆", cost: 80, color: "藍", rarity: 2 }, { name: "半魚人", cost: 57, color: "紅", rarity: 0 }, { name: "麻痺水母", cost: 55, color: "黃", rarity: 0 }, { name: "軍隊蟹", cost: 52, color: "紅", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }],
+            "5-18": [{ name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "軍隊蟹", cost: 52, color: "紅", rarity: 0 }, { name: "奇美拉", cost: 51, color: "紫", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }],
+            "5-17": [{ name: "黃色史萊姆", cost: 80, color: "藍", rarity: 2 }, { name: "麻痺水母", cost: 55, color: "黃", rarity: 0 }, { name: "軍隊蟹", cost: 52, color: "紅", rarity: 0 }, { name: "奇美拉", cost: 51, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
+            "5-16": [{ name: "黃色史萊姆", cost: 80, color: "藍", rarity: 2 }, { name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "半魚人", cost: 57, color: "紅", rarity: 0 }, { name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
+            "5-15": [{ name: "黃色史萊姆", cost: 80, color: "藍", rarity: 2 }, { name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "半魚人", cost: 57, color: "紅", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }],
+            "5-14": [{ name: "黃色史萊姆", cost: 80, color: "藍", rarity: 2 }, { name: "半魚人", cost: 57, color: "紅", rarity: 0 }, { name: "麻痺水母", cost: 55, color: "黃", rarity: 0 }, { name: "軍隊蟹", cost: 52, color: "紅", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }],
+            "5-13": [{ name: "半魚人", cost: 57, color: "紅", rarity: 0 }, { name: "麻痺水母", cost: 55, color: "黃", rarity: 0 }, { name: "奇美拉", cost: 51, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
+            "5-12": [{ name: "亡者的靈魂", cost: 70, color: "綠", rarity: 1 }, { name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "半魚人", cost: 57, color: "紅", rarity: 0 }, { name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }],
+            "5-11": [{ name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "半魚人", cost: 57, color: "紅", rarity: 0 }, { name: "麻痺水母", cost: 55, color: "黃", rarity: 0 }, { name: "奇美拉", cost: 51, color: "紫", rarity: 0 }],
+            "5-10": [{ name: "亡者的靈魂", cost: 70, color: "綠", rarity: 1 }, { name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "軍隊蟹", cost: 52, color: "紅", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }],
+            "5-9": [{ name: "亡者的靈魂", cost: 70, color: "綠", rarity: 1 }, { name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "軍隊蟹", cost: 52, color: "紅", rarity: 0 }, { name: "奇美拉", cost: 51, color: "紫", rarity: 0 }],
+            "5-8": [{ name: "奇美拉", cost: 51, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }],
+            "5-7": [{ name: "亡者的靈魂", cost: 70, color: "綠", rarity: 1 }, { name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "軍隊蟹", cost: 52, color: "紅", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }],
+            "5-6": [{ name: "亡者的靈魂", cost: 70, color: "綠", rarity: 1 }, { name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "奇美拉", cost: 51, color: "紫", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }],
+            "5-5": [{ name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "軍隊蟹", cost: 52, color: "紅", rarity: 0 }, { name: "奇美拉", cost: 51, color: "紫", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
+            "5-4": [{ name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }],
+            "5-3": [{ name: "鐵蠍", cost: 58, color: "紫", rarity: 0 }, { name: "麻痺水母", cost: 55, color: "黃", rarity: 0 }, { name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }],
+            "5-2": [{ name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }],
+            "5-1": [{ name: "小烏賊", cost: 54, color: "藍", rarity: 0 }, { name: "狩獵小惡魔", cost: 36, color: "綠", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }, { name: "徬徨鬼魂", cost: 24, color: "紫", rarity: 0 }]
         };
 
-        // 整理記憶體資料
         let memories = {};
         Object.keys(rawStages).forEach(stage => {
             rawStages[stage].forEach(item => {
@@ -339,8 +379,10 @@
         let memoryList = Object.values(memories).sort((a, b) => b.cost - a.cost);
 
         // ==================== 跨版本相容資料遷移 ====================
-        const PERSISTENT_KEY = 'DQSG_obtained_memories_persistent_ch4';
+        const PERSISTENT_KEY = 'DQSG_obtained_memories_persistent_ch5_v2';
         const LEGACY_KEYS = [
+            'DQSG_obtained_memories_persistent_ch5',
+            'DQSG_obtained_memories_persistent_ch4',
             'DQSG_obtained_memories_persistent_ch3',
             'DQSG_obtained_memories_persistent_ch2_v2',
             'DQSG_obtained_memories_persistent_ch2',
@@ -399,6 +441,7 @@
         let currentFilter = 'all';
         let activeTab = 'memories'; 
         let currentChapterFilter = 'all';
+        let currentSearchQuery = ''; // 新增：搜尋關鍵字
         let isDesktopLayout = false;
 
         const typeColors = {
@@ -414,6 +457,7 @@
             mql.addEventListener('change', handleLayoutChange);
             handleLayoutChange(mql); 
 
+            // 狀態過濾按鈕
             const btnAll = document.getElementById('btn-filter-all');
             const btnTodo = document.getElementById('btn-filter-todo');
             if (btnAll && btnTodo) {
@@ -429,6 +473,16 @@
                 };
             }
 
+            // 搜尋輸入框事件綁定
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    currentSearchQuery = e.target.value.trim().toLowerCase();
+                    renderMemories();
+                });
+            }
+
+            // 頁籤按鈕
             const tabBtnMemories = document.getElementById('tab-button-memories');
             const tabBtnStages = document.getElementById('tab-button-stages');
             if (tabBtnMemories && tabBtnStages) {
@@ -442,11 +496,13 @@
                 };
             }
 
+            // 章節篩選按鈕
             document.getElementById('btn-chap-all').onclick = () => setChapterFilter('all');
             document.getElementById('btn-chap-1').onclick = () => setChapterFilter('1');
             document.getElementById('btn-chap-2').onclick = () => setChapterFilter('2');
             document.getElementById('btn-chap-3').onclick = () => setChapterFilter('3');
             document.getElementById('btn-chap-4').onclick = () => setChapterFilter('4');
+            document.getElementById('btn-chap-5').onclick = () => setChapterFilter('5');
 
             setChapterFilter('all');
         }
@@ -513,7 +569,7 @@
         }
 
         function updateChapterButtons() {
-            ['all', '1', '2', '3', '4'].forEach(chap => {
+            ['all', '1', '2', '3', '4', '5'].forEach(chap => {
                 const btn = document.getElementById(`btn-chap-${chap}`);
                 if (btn) {
                     if (currentChapterFilter === chap) {
@@ -544,22 +600,34 @@
             if (!container) return;
             container.innerHTML = '';
 
+            // 1. 章節過濾
             let chapterMemories = memoryList;
             if (currentChapterFilter !== 'all') {
                 chapterMemories = memoryList.filter(m => m.stages.some(st => st.startsWith(`${currentChapterFilter}-`)));
             }
 
-            const filteredList = currentFilter === 'all' 
+            // 2. 狀態過濾 (全部 or 未獲得)
+            let filteredList = currentFilter === 'all' 
                 ? chapterMemories 
                 : chapterMemories.filter(m => obtainedState[m.name] === false);
 
+            // 3. 搜尋過濾
+            if (currentSearchQuery !== '') {
+                filteredList = filteredList.filter(m => m.name.toLowerCase().includes(currentSearchQuery));
+            }
+
             if (filteredList.length === 0) {
+                let emptyMsg = currentFilter === 'todo' ? "目前條件下所有記憶體都已收集完畢！" : "沒有符合條件的記憶體。";
+                if (currentSearchQuery !== '') {
+                    emptyMsg = `找不到包含「${currentSearchQuery}」的記憶體。`;
+                }
+
                 container.innerHTML = `
                     <div class="col-span-full py-16 text-center text-slate-500 bg-slate-800/50 rounded-2xl border border-slate-700 border-dashed">
                         <svg class="w-10 h-10 mx-auto mb-3 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <p class="text-base md:text-lg font-bold">目前條件下所有記憶體都已收集完畢！</p>
+                        <p class="text-base md:text-lg font-bold">${emptyMsg}</p>
                     </div>
                 `;
                 return;
