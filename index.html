@@ -173,7 +173,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <input type="text" id="search-input" placeholder="模糊搜尋記憶體名稱 (例如：史萊姆)..." class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm md:text-base rounded-xl pl-12 pr-4 py-3.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder-slate-500 shadow-inner">
+                        <input type="text" id="search-input" placeholder="模糊搜尋記憶體名稱 (例如：史萊姆 / スライム)..." class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-sm md:text-base rounded-xl pl-12 pr-4 py-3.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder-slate-500 shadow-inner">
                     </div>
                 </div>
 
@@ -202,6 +202,64 @@
     </footer>
 
     <script>
+        // 依據截圖對照，完全修正的中日名稱對照表
+        const jpNameMap = {
+            "萊姆史萊姆": "ライムスライム",
+            "史萊姆": "スライム",
+            "多拉奇瑪": "ドラキーマ",
+            "多拉奇": "ドラキー",
+            "巨像兵": "ゴーレム",
+            "石頭人": "ストーンマン",
+            "霍伊米史萊姆": "ホイミスライム",
+            "見習惡魔": "みならいあくま",
+            "大木鎚": "おおきづち",
+            "厘厘普小人": "リリパット",
+            
+            "小魔術師": "ベビーマジシャン",
+            "大鐵錘": "ブラウニー",
+            "毒箭斗篷客": "どくやずきん",
+            "塔霍多拉奇": "タホドラキー",
+            "骸骨": "がいこつ",
+            "迷你惡魔": "ミニデーモン",
+            "泡沫史萊姆": "バブルスライム",
+            "徬徨鬼魂": "さまようたましい",
+            "泥手": "マドハンド",
+            "鬼魂": "ゴースト",
+            "笑面岩": "スマイルロック",
+
+            "乾屍": "マミー",
+            "貝霍伊米史萊姆": "ベホイミスライム",
+            "食火鳥": "ひくいどり",
+            "烈焰怪": "フレイム",
+            "沙漠鬼魂": "デザートゴースト",
+            "木乃伊": "ミイラおとこ",
+            "狩獵小惡魔": "アローインプ",
+            "巨蠍": "おおさそり",
+            "美拉鬼魂": "メラゴースト",
+            "史萊姆貝斯": "スライムベス",
+
+            "亡靈劍士": "しりょうのきし",
+            "巨大鎚": "ビッグハンマー",
+            "獨眼小丑": "ひとつめピエロ",
+            "黃金半獸人": "ゴールドオーク",
+            "巨目蟲": "メーダ",
+            "惡作劇鬼魂": "メトロゴースト",
+            "人面樹": "じんめんじゅ",
+            "半獸人": "オーク",
+            "妖怪蘑菇": "おばけキノコ",
+            "大樹懶": "ビッグスロース",
+
+            "黃色史萊姆": "レモンスライム",
+            "半魚人": "マーマン",
+            "麻痺水母": "しびれくらげ",
+            "軍隊蟹": "ぐんたいガニ",
+            "亡者的靈魂": "亡者のひとだま",
+            "邪惡蒼鷹": "エビルホーク",
+            "鐵蠍": "てつのさそり",
+            "小烏賊": "プチアーノン",
+            "奇美拉": "キメラ"
+        };
+
         // 內嵌一到五章精緻怪物 SVG 圖像
         const monsterIcons = {
             // 第一章
@@ -421,7 +479,7 @@
                 } catch(e) {}
             }
 
-            // 特殊相容處理：舊名稱遷移，包含修正翻譯不一的"大鐵鎚"合併為"大鐵錘"
+            // 特殊相容處理：舊名稱遷移
             const nameMapping = {
                 "狂笑袋": "大樹懶",
                 "猩猩獸小人": "厘厘普小人",
@@ -624,7 +682,11 @@
                 : chapterMemories.filter(m => obtainedState[m.name] === false);
 
             if (currentSearchQuery !== '') {
-                filteredList = filteredList.filter(m => m.name.toLowerCase().includes(currentSearchQuery));
+                filteredList = filteredList.filter(m => {
+                    const jpName = jpNameMap[m.name] || '';
+                    const combined = (m.name + jpName).toLowerCase();
+                    return combined.includes(currentSearchQuery);
+                });
             }
 
             if (filteredList.length === 0) {
@@ -668,6 +730,9 @@
                 const displayStages = currentChapterFilter === 'all'
                     ? m.stages
                     : m.stages.filter(st => st.startsWith(`${currentChapterFilter}-`));
+                
+                // 取得對應日文，不加括號
+                const jpName = jpNameMap[m.name] || '';
 
                 const card = document.createElement('div');
                 card.className = `p-4 sm:p-5 rounded-2xl border ${borderStyle} ${bgStyle} transition duration-200 cursor-pointer flex flex-col justify-between h-full relative group`;
@@ -693,8 +758,9 @@
                                         <span class="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gradient-to-br ${typeColors[m.color] || 'from-slate-400 to-slate-600'} inline-block shadow-sm" title="${m.color}屬性"></span>
                                     </div>
                                 </div>
-                                <h3 class="text-base sm:text-lg md:text-xl font-bold text-slate-100 flex items-center gap-2 mt-1">
-                                    ${m.name}
+                                <h3 class="flex flex-col items-start mt-1.5">
+                                    <span class="text-base sm:text-lg md:text-xl font-bold text-slate-100 leading-tight">${m.name}</span>
+                                    ${jpName ? `<span class="text-xs md:text-sm text-slate-400 font-medium mt-0.5 tracking-wider">${jpName}</span>` : ''}
                                 </h3>
                             </div>
                         </div>
