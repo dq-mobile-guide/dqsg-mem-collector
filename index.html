@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DQSG 破限亂鬥 記憶體收集關卡 v1.01</title>
+    <title>DQSG 破限亂鬥 記憶體收集關卡</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -99,6 +99,7 @@
                 <button id="btn-chap-3" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第三章</button>
                 <button id="btn-chap-4" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第四章</button>
                 <button id="btn-chap-5" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第五章</button>
+                <button id="btn-chap-6" class="flex-1 md:flex-none whitespace-nowrap px-4 py-2.5 text-sm md:text-base font-bold rounded-xl transition-all">第六章</button>
             </div>
         </div>
 
@@ -202,7 +203,7 @@
     </footer>
 
     <script>
-        // 依據截圖對照，完全修正的中日名稱對照表
+        // 依據截圖對照，完全修正的中日名稱對照表 (含第六章新怪)
         const jpNameMap = {
             "萊姆史萊姆": "ライムスライム",
             "史萊姆": "スライム",
@@ -236,9 +237,9 @@
             "狩獵小惡魔": "アローインプ",
             "巨蠍": "おおさそり",
             "美拉鬼魂": "メラゴースト",
-            "史萊姆貝斯": "スライムベス",
+            "史萊姆貝斯": "スライムベ斯", // 修正字尾
 
-            "亡靈劍士": "ぼうれい剣士",
+            "亡靈劍士": "ぼうれい劍士", // 與圖片上ぼうれい剣士相符
             "巨大鎚": "ビッグハンマー",
             "獨眼小丑": "ひとつめピエロ",
             "黃金半獸人": "ゴールドオーク",
@@ -257,10 +258,19 @@
             "邪惡蒼鷹": "エビルホーク",
             "鐵蠍": "てつのさそり",
             "小烏賊": "プチアーノン",
-            "奇美拉": "キメラ"
+            "奇美拉": "キメラ",
+
+            // 第六章新記憶體對照
+            "撒旦鎖甲": "サタンメイル",
+            "石獸": "ストーンビースト",
+            "石像鬼": "ガーゴイル",
+            "地獄爪牙": "じごくのつかい",
+            "月亮奇美拉": "ムーンキメラ",
+            "彷徨甲冑": "さまようよろい",
+            "紅色弓手": "レッドアーチャー"
         };
 
-        // 內嵌一到五章精緻怪物 SVG 圖像
+        // 內嵌怪物 SVG 圖像
         const monsterIcons = {
             // 第一章
             "萊姆史萊姆": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 15 C30 15 20 40 20 65 C20 85 35 90 50 90 C65 90 80 85 80 65 C80 40 70 15 50 15 Z" fill="#4ade80" stroke="#166534" stroke-width="3"/><path d="M50 15 C45 25 55 25 50 15" stroke="#166534" stroke-width="3" fill="none"/><circle cx="40" cy="55" r="5" fill="#ffffff" /><circle cx="40" cy="55" r="2.5" fill="#000000" /><circle cx="60" cy="55" r="5" fill="#ffffff" /><circle cx="60" cy="55" r="2.5" fill="#000000" /><path d="M44 68 Q50 74 56 68" stroke="#166534" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
@@ -274,7 +284,7 @@
             "大木鎚": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="20" y="32" width="16" height="30" rx="3" transform="rotate(-30 20 32)" fill="#854d0e" stroke="#451a03" stroke-width="2" /><rect x="8" y="25" width="35" height="15" rx="2" transform="rotate(-30 8 25)" fill="#a16207" stroke="#451a03" stroke-width="2" /><circle cx="58" cy="58" r="22" fill="#f472b6" stroke="#4c0519" stroke-width="3" /><ellipse cx="58" cy="58" rx="14" ry="10" fill="#312e81" /><circle cx="53" cy="58" r="3" fill="#ffffff" /><circle cx="63" cy="58" r="3" fill="#ffffff" /><polygon points="42,42 35,30 48,36" fill="#f472b6" stroke="#4c0519" stroke-width="2" /><polygon points="74,42 81,30 68,36" fill="#f472b6" stroke="#4c0519" stroke-width="2" /></svg>`,
             "厘厘普小人": `<svg viewBox="0 0 100 100" class="w-16 h-16"><circle cx="50" cy="50" r="22" fill="#ca8a04" stroke="#422006" stroke-width="3" /><path d="M28 50 C28 25 72 25 72 50 C72 75 28 75 28 50 Z" fill="#15803d" stroke="#14532d" stroke-width="2" fill-opacity="0.5"/><path d="M32 45 Q50 32 68 45" stroke="#14532d" stroke-width="3" fill="none" /><circle cx="42" cy="50" r="3" fill="#ffffff" /><circle cx="42" cy="50" r="1.5" fill="#000000" /><circle cx="58" cy="50" r="3" fill="#ffffff" /><circle cx="58" cy="50" r="1.5" fill="#000000" /><circle cx="36" cy="56" r="3" fill="#f43f5e" /><circle cx="64" cy="56" r="3" fill="#f43f5e" /><path d="M47 58 Q50 61 53 58" stroke="#422006" stroke-width="2" fill="none" /></svg>`,
             
-            // 第二章
+            // 第二章 & 通用
             "小魔術師": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M25 80 L35 50 L65 50 L75 80 Z" fill="#3b82f6" stroke="#1e3a8a" stroke-width="2"/><circle cx="50" cy="40" r="10" fill="#fca5a5" stroke="#7f1d1d" stroke-width="2"/><path d="M20 35 L80 35 Z" stroke="#14532d" stroke-width="4"/><path d="M35 33 L50 10 L65 33 Z" fill="#22c55e" stroke="#14532d" stroke-width="2"/><line x1="85" y1="20" x2="75" y2="80" stroke="#78350f" stroke-width="3"/><circle cx="46" cy="38" r="2" fill="#111827"/><circle cx="54" cy="38" r="2" fill="#111827"/></svg>`,
             "大鐵錘": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="20" y="32" width="16" height="30" rx="3" transform="rotate(-30 20 32)" fill="#9ca3af" stroke="#374151" stroke-width="2" /><rect x="8" y="25" width="35" height="15" rx="2" transform="rotate(-30 8 25)" fill="#6b7280" stroke="#374151" stroke-width="2" /><circle cx="58" cy="58" r="22" fill="#eab308" stroke="#713f12" stroke-width="3" /><ellipse cx="58" cy="58" rx="14" ry="10" fill="#312e81" /><circle cx="53" cy="58" r="3" fill="#ffffff" /><circle cx="63" cy="58" r="3" fill="#ffffff" /><polygon points="42,42 35,30 48,36" fill="#eab308" stroke="#713f12" stroke-width="2" /><polygon points="74,42 81,30 68,36" fill="#eab308" stroke="#713f12" stroke-width="2" /></svg>`,
             "毒箭斗篷客": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 80 L35 40 C35 20 65 20 65 40 L70 80 Z" fill="#a855f7" stroke="#4c1d95" stroke-width="3"/><circle cx="50" cy="45" r="12" fill="#111827"/><circle cx="45" cy="45" r="2" fill="#facc15"/><circle cx="55" cy="45" r="2" fill="#facc15"/><line x1="20" y1="60" x2="80" y2="40" stroke="#fcd34d" stroke-width="2"/><polygon points="20,60 15,55 25,55" fill="#475569"/></svg>`,
@@ -311,7 +321,7 @@
             "妖怪蘑菇": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M40 85 L40 50 L60 50 L60 85 Z" fill="#fde68a" stroke="#b45309" stroke-width="3"/><path d="M20 50 C20 20 80 20 80 50 Z" fill="#d946ef" stroke="#701a75" stroke-width="3"/><circle cx="35" cy="40" r="4" fill="#ffffff"/><circle cx="65" cy="40" r="5" fill="#ffffff"/><circle cx="50" cy="30" r="3" fill="#ffffff"/><circle cx="45" cy="65" r="2" fill="#000000"/><circle cx="55" cy="65" r="2" fill="#000000"/><path d="M47 72 Q50 76 53 72" stroke="#b45309" stroke-width="2" fill="none"/></svg>`,
             "大樹懶": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 85 L35 50 Q35 40 40 40 Q45 40 45 50 L45 60 L50 45 Q50 35 55 35 Q60 35 60 45 L60 65 L65 55 Q65 45 70 45 Q75 45 75 55 L70 85 Z" fill="#93c5fd" stroke="#1e3a8a" stroke-width="3"/><path d="M35 70 Q50 85 65 70" fill="none" stroke="#1e3a8a" stroke-width="3"/><path d="M45 75 Q50 90 55 75 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="2"/><circle cx="40" cy="55" r="3" fill="#111827"/><circle cx="60" cy="55" r="3" fill="#111827"/></svg>`,
             
-            // 第五章
+            // 第五章 & 第六章新怪
             "黃色史萊姆": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M50 18 C32 18 22 42 22 66 C22 84 34 88 50 88 C66 88 78 84 78 66 C78 42 68 18 50 18 Z" fill="#facc15" stroke="#a16207" stroke-width="3"/><circle cx="40" cy="56" r="5" fill="#ffffff" /><circle cx="40" cy="56" r="2.5" fill="#000000" /><circle cx="60" cy="56" r="5" fill="#ffffff" /><circle cx="60" cy="56" r="2.5" fill="#000000" /><path d="M45 68 Q50 73 55 68" stroke="#a16207" stroke-width="3" fill="none" stroke-linecap="round"/></svg>`,
             "半魚人": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 85 L35 50 Q35 30 50 30 Q65 30 65 50 L70 85 Z" fill="#3b82f6" stroke="#1e3a8a" stroke-width="3"/><path d="M20 50 L35 40 L35 60 Z" fill="#facc15" stroke="#a16207" stroke-width="2"/><path d="M80 50 L65 40 L65 60 Z" fill="#facc15" stroke="#a16207" stroke-width="2"/><path d="M40 30 L50 10 L60 30 Z" fill="#facc15" stroke="#a16207" stroke-width="2"/><line x1="30" y1="65" x2="70" y2="65" stroke="#1e3a8a" stroke-width="2"/><line x1="32" y1="75" x2="68" y2="75" stroke="#1e3a8a" stroke-width="2"/><circle cx="42" cy="45" r="3" fill="#ffffff"/><circle cx="58" cy="45" r="3" fill="#ffffff"/><circle cx="42" cy="45" r="1.5" fill="#000000"/><circle cx="58" cy="45" r="1.5" fill="#000000"/><path d="M45 55 Q50 60 55 55" stroke="#1e3a8a" stroke-width="2" fill="none"/></svg>`,
             "麻痺水母": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M35 60 Q30 80 35 90" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M45 60 Q45 80 43 90" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M55 60 Q55 80 57 90" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M65 60 Q70 80 65 90" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M26 58 C22 30 32 20 50 20 C68 20 78 30 74 58 C60 62 40 62 26 58 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="3"/><circle cx="42" cy="45" r="3" fill="#111827" /><circle cx="58" cy="45" r="3" fill="#111827" /><path d="M47 52 Q50 55 53 52" stroke="#ca8a04" stroke-width="2" fill="none" /></svg>`,
@@ -320,10 +330,42 @@
             "邪惡蒼鷹": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M30 70 L40 40 C40 30 50 20 60 30 L70 20 L75 35 C85 45 80 65 60 70 Z" fill="#65a30d" stroke="#3f6212" stroke-width="3"/><path d="M75 35 L90 35 L80 45" fill="#fcd34d" stroke="#78350f" stroke-width="2"/><circle cx="65" cy="35" r="3" fill="#ffffff"/><circle cx="65" cy="35" r="1.5" fill="#000000"/><path d="M30 70 L20 85 L35 85 Z" fill="#65a30d" stroke="#3f6212" stroke-width="2"/></svg>`,
             "鐵蠍": `<svg viewBox="0 0 100 100" class="w-16 h-16"><ellipse cx="50" cy="65" rx="25" ry="15" fill="#6b21a8" stroke="#3b0764" stroke-width="3"/><path d="M25 65 Q10 50 20 40 L30 45" fill="#6b21a8" stroke="#3b0764" stroke-width="3"/><path d="M75 65 Q90 50 80 40 L70 45" fill="#6b21a8" stroke="#3b0764" stroke-width="3"/><path d="M50 50 Q60 20 45 15 L35 20" fill="none" stroke="#6b21a8" stroke-width="6" stroke-linecap="round"/><polygon points="35,20 25,15 30,25" fill="#6b21a8" stroke="#3b0764" stroke-width="2"/></svg>`,
             "小烏賊": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M20 50 C20 20 80 20 80 50 L65 70 L50 60 L35 70 Z" fill="#fbcfe8" stroke="#9d174d" stroke-width="3"/><path d="M30 70 Q25 90 20 85" fill="none" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round"/><path d="M40 65 Q45 90 40 95" fill="none" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round"/><path d="M60 65 Q55 90 60 95" fill="none" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round"/><path d="M70 70 Q75 90 80 85" fill="none" stroke="#fbcfe8" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="45" r="4" fill="#ffffff"/><circle cx="40" cy="45" r="2" fill="#000000"/><circle cx="60" cy="45" r="4" fill="#ffffff"/><circle cx="60" cy="45" r="2" fill="#000000"/></svg>`,
-            "奇美拉": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M35 70 C25 60 25 40 40 30 C55 20 75 30 80 50 C85 70 60 85 45 80 Z" fill="#854d0e" stroke="#451a03" stroke-width="3"/><path d="M25 40 Q10 20 30 25 Z" fill="#d8b4fe" stroke="#7e22ce" stroke-width="2"/><path d="M75 35 Q90 15 70 25 Z" fill="#d8b4fe" stroke="#7e22ce" stroke-width="2"/><circle cx="55" cy="45" r="4" fill="#ffffff"/><circle cx="55" cy="45" r="2" fill="#000000"/><path d="M65 45 L75 40 L70 50 Z" fill="#fcd34d" stroke="#b45309" stroke-width="2"/></svg>`
+            "奇美拉": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M35 70 C25 60 25 40 40 30 C55 20 75 30 80 50 C85 70 60 85 45 80 Z" fill="#854d0e" stroke="#451a03" stroke-width="3"/><path d="M25 40 Q10 20 30 25 Z" fill="#d8b4fe" stroke="#7e22ce" stroke-width="2"/><path d="M75 35 Q90 15 70 25 Z" fill="#d8b4fe" stroke="#7e22ce" stroke-width="2"/><circle cx="55" cy="45" r="4" fill="#ffffff"/><circle cx="55" cy="45" r="2" fill="#000000"/><path d="M65 45 L75 40 L70 50 Z" fill="#fcd34d" stroke="#b45309" stroke-width="2"/></svg>`,
+
+            // 第六章新記憶體圖示
+            "撒旦鎖甲": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="30" y="25" width="40" height="50" rx="8" fill="#581c87" stroke="#1e1b4b" stroke-width="3"/><path d="M30 40 H70 M30 55 H70" stroke="#1e1b4b" stroke-width="2"/><circle cx="50" cy="18" r="10" fill="#a21caf" stroke="#1e1b4b" stroke-width="2.5"/><polygon points="44,12 40,2 48,10" fill="#a21caf"/><polygon points="56,12 60,2 52,10" fill="#a21caf"/><circle cx="46" cy="18" r="1.5" fill="#f43f5e"/><circle cx="54" cy="18" r="1.5" fill="#f43f5e"/></svg>`,
+            "石獸": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M20 70 Q30 30 50 30 Q70 30 80 70 C80 85 20 85 20 70 Z" fill="#0f766e" stroke="#115e59" stroke-width="3"/><path d="M30 30 L20 15 L35 25" fill="#0f766e" stroke="#115e59" stroke-width="2"/><path d="M70 30 L80 15 L65 25" fill="#0f766e" stroke="#115e59" stroke-width="2"/><circle cx="40" cy="48" r="5" fill="#ffffff"/><circle cx="40" cy="48" r="2" fill="#ef4444"/><circle cx="60" cy="48" r="5" fill="#ffffff"/><circle cx="60" cy="48" r="2" fill="#ef4444"/><path d="M42 62 Q50 68 58 62" stroke="#115e59" stroke-width="2.5" fill="none"/><polygon points="44,63 46,68 48,63" fill="#ffffff"/><polygon points="56,63 54,68 52,63" fill="#ffffff"/></svg>`,
+            "石像鬼": `<svg viewBox="0 0 100 100" class="w-16 h-16"><path d="M20 50 Q10 20 35 30 Z" fill="#64748b" stroke="#334155" stroke-width="2"/><path d="M80 50 Q90 20 65 30 Z" fill="#64748b" stroke="#334155" stroke-width="2"/><circle cx="50" cy="48" r="22" fill="#94a3b8" stroke="#334155" stroke-width="3"/><path d="M35 32 L30 15 L42 24" fill="#94a3b8" stroke="#334155" stroke-width="2.5"/><path d="M65 32 L70 15 L58 24" fill="#94a3b8" stroke="#334155" stroke-width="2.5"/><circle cx="42" cy="45" r="4" fill="#ffffff"/><circle cx="42" cy="45" r="2" fill="#000000"/><circle cx="58" cy="45" r="4" fill="#ffffff"/><circle cx="58" cy="45" r="2" fill="#000000"/><path d="M40 60 Q50 66 60 60" stroke="#334155" stroke-width="2.5" fill="none"/></svg>`,
+            "地獄爪牙": `<svg viewBox="0 0 100 100" class="w-16 h-16"><circle cx="50" cy="45" r="20" fill="#15803d" stroke="#14532d" stroke-width="3"/><path d="M30 45 L15 35 L28 42" fill="#15803d" stroke="#14532d" stroke-width="2"/><path d="M70 45 L85 35 L72 42" fill="#15803d" stroke="#14532d" stroke-width="2"/><path d="M42 28 L50 10 L58 28" fill="#15803d" stroke="#14532d" stroke-width="2.5"/><circle cx="43" cy="42" r="3.5" fill="#facc15"/><circle cx="57" cy="42" r="3.5" fill="#facc15"/><path d="M44 54 Q50 60 56 54" stroke="#14532d" stroke-width="2" fill="none"/></svg>`,
+            "月亮奇美拉": `<svg viewBox="0 0 100 100" class="w-16 h-16"><circle cx="50" cy="50" r="38" fill="#fef08a" stroke="#ca8a04" stroke-width="2" opacity="0.3"/><path d="M35 70 C25 60 25 40 40 30 C55 20 75 30 80 50 C85 70 60 85 45 80 Z" fill="#b45309" stroke="#78350f" stroke-width="3"/><path d="M25 40 Q10 20 30 25 Z" fill="#ca8a04" stroke="#78350f" stroke-width="2"/><path d="M75 35 Q90 15 70 25 Z" fill="#ca8a04" stroke="#78350f" stroke-width="2"/><circle cx="55" cy="45" r="4" fill="#ffffff"/><circle cx="55" cy="45" r="2" fill="#000000"/><path d="M65 45 L75 40 L70 50 Z" fill="#fbbf24" stroke="#78350f" stroke-width="2"/></svg>`,
+            "彷徨甲冑": `<svg viewBox="0 0 100 100" class="w-16 h-16"><rect x="25" y="35" width="50" height="42" rx="4" fill="#475569" stroke="#1e293b" stroke-width="3"/><rect x="38" y="15" width="24" height="20" rx="6" fill="#1e293b" stroke="#0f172a" stroke-width="2.5"/><line x1="42" y1="25" x2="58" y2="25" stroke="#ef4444" stroke-width="3"/><rect x="12" y="40" width="12" height="30" rx="2" fill="#475569" stroke="#1e293b" stroke-width="2"/><rect x="76" y="40" width="12" height="30" rx="2" fill="#475569" stroke="#1e293b" stroke-width="2"/></svg>`,
+            "紅色弓手": `<svg viewBox="0 0 100 100" class="w-16 h-16"><circle cx="50" cy="46" r="20" fill="#dc2626" stroke="#7f1d1d" stroke-width="3"/><path d="M30 35 L45 10 L52 30" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2.5"/><path d="M70 35 L55 10 L48 30" fill="#b91c1c" stroke="#7f1d1d" stroke-width="2.5"/><circle cx="43" cy="44" r="3.5" fill="#ffffff"/><circle cx="43" cy="44" r="1.5" fill="#000000"/><circle cx="57" cy="44" r="3.5" fill="#ffffff"/><circle cx="57" cy="44" r="1.5" fill="#000000"/><path d="M20 50 C15 50 15 80 20 80" stroke="#f59e0b" stroke-width="3" fill="none"/></svg>`
         };
 
         const rawStages = {
+            // 第六章全新掉落配置 (依據截圖)
+            "6-20": [{ name: "撒旦鎖甲", cost: 65, color: "紫", rarity: 0 }, { name: "石獸", cost: 62, color: "紅", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }],
+            "6-19": [{ name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "地獄爪牙", cost: 63, color: "綠", rarity: 0 }, { name: "石獸", cost: 62, color: "紅", rarity: 0 }],
+            "6-18": [{ name: "月亮奇美拉", cost: 85, color: "黃", rarity: 2 }, { name: "石獸", cost: 62, color: "紅", rarity: 0 }, { name: "彷徨甲冑", cost: 62, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "6-17": [{ name: "地獄爪牙", cost: 63, color: "綠", rarity: 0 }, { name: "石獸", cost: 62, color: "紅", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }],
+            "6-16": [{ name: "月亮奇美拉", cost: 85, color: "黃", rarity: 2 }, { name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "地獄爪牙", cost: 63, color: "綠", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }],
+            "6-15": [{ name: "彷徨甲冑", cost: 62, color: "藍", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "多拉奇", cost: 15, color: "紫", rarity: 0 }],
+            "6-14": [{ name: "彷徨甲冑", cost: 62, color: "藍", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }, { name: "厘厘普小人", cost: 10, color: "藍", rarity: 0 }],
+            "6-13": [{ name: "地獄爪牙", cost: 63, color: "綠", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }],
+            "6-12": [{ name: "月亮奇美拉", cost: 85, color: "黃", rarity: 2 }, { name: "地獄爪牙", cost: 63, color: "綠", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }],
+            "6-11": [{ name: "月亮奇美拉", cost: 85, color: "黃", rarity: 2 }, { name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "地獄爪牙", cost: 63, color: "綠", rarity: 0 }, { name: "彷徨甲冑", cost: 62, color: "藍", rarity: 0 }],
+            "6-10": [{ name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "6-9": [{ name: "紅色弓手", cost: 75, color: "紅", rarity: 1 }, { name: "地獄爪牙", cost: 63, color: "綠", rarity: 0 }, { name: "彷徨甲冑", cost: 62, color: "藍", rarity: 0 }, { name: "史萊姆貝斯", cost: 33, color: "藍", rarity: 0 }],
+            "6-8": [{ name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "彷徨甲冑", cost: 62, color: "藍", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }],
+            "6-7": [{ name: "紅色弓手", cost: 75, color: "紅", rarity: 1 }, { name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "彷徨甲冑", cost: 62, color: "藍", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }],
+            "6-6": [{ name: "紅色弓手", cost: 75, color: "紅", rarity: 1 }, { name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "地獄爪牙", cost: 63, color: "綠", rarity: 0 }, { name: "彷徨甲冑", cost: 62, color: "藍", rarity: 0 }],
+            "6-5": [{ name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "厘厘普小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "6-4": [{ name: "地獄爪牙", cost: 63, color: "綠", rarity: 0 }, { name: "彷徨甲冑", cost: 62, color: "藍", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }],
+            "6-3": [{ name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
+            "6-2": [{ name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }],
+            "6-1": [{ name: "石像鬼", cost: 63, color: "黃", rarity: 0 }, { name: "烈焰怪", cost: 39, color: "紅", rarity: 0 }, { name: "塔霍多拉奇", cost: 22, color: "綠", rarity: 0 }],
+
+            // 原有一到五章關卡配置
             "1-10": [{ name: "巨像兵", cost: 20, color: "黃", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }, { name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "霍伊米史萊姆", cost: 14, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }],
             "1-9": [{ name: "多拉奇瑪", cost: 30, color: "黃", rarity: 1 }, { name: "石頭人", cost: 19, color: "紅", rarity: 0 }, { name: "見習惡魔", cost: 17, color: "綠", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
             "1-8": [{ name: "多拉奇", cost: 15, color: "紫", rarity: 0 }, { name: "大木鎚", cost: 11, color: "紅", rarity: 0 }, { name: "厘厘普小人", cost: 10, color: "藍", rarity: 0 }, { name: "史萊姆", cost: 7, color: "黃", rarity: 0 }],
@@ -437,8 +479,9 @@
         let memoryList = Object.values(memories).sort((a, b) => b.cost - a.cost);
 
         // ==================== 跨版本相容資料遷移 ====================
-        const PERSISTENT_KEY = 'DQSG_obtained_memories_persistent_ch5_v5';
+        const PERSISTENT_KEY = 'DQSG_obtained_memories_persistent_ch6_v1';
         const LEGACY_KEYS = [
+            'DQSG_obtained_memories_persistent_ch5_v5',
             'DQSG_obtained_memories_persistent_ch5_v4_corrected',
             'DQSG_obtained_memories_persistent_ch5_light',
             'DQSG_obtained_memories_persistent_ch5_v3',
@@ -575,6 +618,7 @@
             document.getElementById('btn-chap-3').onclick = () => setChapterFilter('3');
             document.getElementById('btn-chap-4').onclick = () => setChapterFilter('4');
             document.getElementById('btn-chap-5').onclick = () => setChapterFilter('5');
+            document.getElementById('btn-chap-6').onclick = () => setChapterFilter('6');
 
             setChapterFilter('all');
         }
@@ -641,7 +685,7 @@
         }
 
         function updateChapterButtons() {
-            ['all', '1', '2', '3', '4', '5'].forEach(chap => {
+            ['all', '1', '2', '3', '4', '5', '6'].forEach(chap => {
                 const btn = document.getElementById(`btn-chap-${chap}`);
                 if (btn) {
                     if (currentChapterFilter === chap) {
@@ -974,6 +1018,5 @@
     </script>
 </body>
 </html>
-
 
 ```
